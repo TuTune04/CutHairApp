@@ -6,9 +6,11 @@ import Image from "next/image"
 import { PackageCheck, Rocket, ShieldCheck } from "lucide-react" // Added PackageCheck, Rocket, and ShieldCheck icon imports
 import { Reveal } from "./reveal"
 import { BlurPanel } from "./blur-panel"
+import { useIsMobile } from "@/hooks/useIsMobile"
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -52,7 +54,7 @@ export function HeroSection() {
         transition={{ duration: 1.2, ease: [0.21, 0.47, 0.32, 0.98] }}
       >
         <Image
-          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/u3195299943_une_vue_sur_lespace_toil_--ar_11_--sref_httpss.mj_f1cd1575-c301-46fa-8b30-665ae1ab22a0_3_bloom_subtle_6x.png-EslKdscYhdWOUeP4RBajclEejxh8iO.jpeg"
+          src="/images/herosection.jpeg"
           alt="KATACHI Studio - Elegant interior with sage green walls and terracotta furniture overlooking surreal landscape"
           fill
           className="object-cover"
@@ -69,7 +71,11 @@ export function HeroSection() {
       >
         <div className="container-custom text-center text-white">
           <Reveal>
-            <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold leading-none tracking-tight mb-6">
+            <h1 className={`font-bold leading-none tracking-tight mb-6 ${
+              isMobile 
+                ? "text-4xl sm:text-5xl" 
+                : "text-6xl md:text-7xl lg:text-8xl xl:text-9xl"
+            }`}>
               <AnimatedText text="Premium hair styling" delay={0.5} />
               <br />
               <span className="italic font-light">
@@ -80,7 +86,9 @@ export function HeroSection() {
 
           <Reveal delay={0.2}>
             <motion.p
-              className="text-lg md:text-xl text-white/90 mb-12 leading-relaxed"
+              className={`text-white/90 mb-12 leading-relaxed ${
+                isMobile ? "text-base" : "text-lg md:text-xl"
+              }`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
@@ -98,19 +106,23 @@ export function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 1.2, ease: [0.21, 0.47, 0.32, 0.98] }}
       >
-        <BlurPanel className="mx-6 mb-6 px-6 py-4 bg-black/24 backdrop-blur-md border-white/20">
-          <div className="flex items-center justify-center gap-6 text-white/90">
+        <BlurPanel className={`mx-6 mb-6 bg-black/24 backdrop-blur-md border-white/20 ${
+          isMobile ? "px-4 py-3" : "px-6 py-4"
+        }`}>
+          <div className={`flex items-center justify-center text-white/90 ${
+            isMobile ? "gap-3 flex-wrap" : "gap-6"
+          }`}>
             <div className="flex items-center gap-2">
               <PackageCheck className="w-4 h-4 text-green-400" />
-              <span className="text-sm">Expert Stylists</span>
+              <span className={isMobile ? "text-xs" : "text-sm"}>Expert Stylists</span>
             </div>
             <div className="flex items-center gap-2">
               <Rocket className="w-4 h-4 text-amber-400" />
-              <span className="text-sm">Quick Booking</span>
+              <span className={isMobile ? "text-xs" : "text-sm"}>Quick Booking</span>
             </div>
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-blue-400" />
-              <span className="text-sm">Premium Products</span>
+              <span className={isMobile ? "text-xs" : "text-sm"}>Premium Products</span>
             </div>
           </div>
         </BlurPanel>

@@ -3,13 +3,26 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/useIsMobile"
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isOverDarkSection, setIsOverDarkSection] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
+      
+      // Check if we're over featured-products section (has bg-black)
+      const featuredSection = document.getElementById('featured-products')
+      if (featuredSection) {
+        const rect = featuredSection.getBoundingClientRect()
+        // Check if we're currently over the dark section
+        setIsOverDarkSection(rect.top <= 0 && rect.bottom >= 0)
+      } else {
+        setIsOverDarkSection(false)
+      }
     }
 
     window.addEventListener("scroll", handleScroll)
@@ -32,14 +45,16 @@ export function Header() {
           {/* Logo */}
           <motion.div className="flex-shrink-0" whileHover={{ scale: 1.02 }} transition={{ duration: 0.2 }}>
             <a
-              href="#"
+              href="/"
               className={cn(
-                "text-xl lg:text-2xl font-bold tracking-tight transition-colors",
-                isScrolled ? "text-neutral-900 hover:text-neutral-700" : "text-white hover:text-white/80",
+                "font-bold tracking-tight transition-colors",
+                isMobile ? "text-lg" : "text-xl lg:text-2xl",
+                // Logic mới: scroll < 20px = trắng, scroll >= 20px = đen, over dark section = trắng
+                !isScrolled || isOverDarkSection ? "text-white hover:text-white/80" : "text-neutral-900 hover:text-neutral-700",
               )}
               aria-label="LUXE Hair Studio Home"
             >
-              LUXE HAIR
+              {isMobile ? "THIEN HAI" : "THIEN HAI HAIR"}
             </a>
           </motion.div>
         </div>

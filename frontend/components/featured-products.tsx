@@ -5,13 +5,14 @@ import { motion } from "framer-motion"
 import { ServiceCard } from "./service-card"
 import { QuickLookModal } from "./quick-look-modal"
 import { Reveal } from "./reveal"
-import "@/components/card.css"
+import { useIsMobile } from "@/hooks/useIsMobile"
+
 const featuredProducts = [
   {
     id: "1",
     name: "Classic Haircut",
     price: "$45",
-    image: "/professional-haircut-styling.jpg",
+    image: "/images/tocnam1.jpg",
     badge: "Popular" as const,
     materials: ["Expert Styling", "Premium Shampoo"],
     swatches: [
@@ -19,14 +20,14 @@ const featuredProducts = [
       { name: "Medium", color: "#9CAF88" },
       { name: "Long", color: "#B87333" },
     ],
-    quickLookImages: ["/professional-haircut-styling.jpg", "/haircut-side-view.jpg", "/haircut-back-view.jpg"],
+    quickLookImages: ["/images/tocnam2.jpg", "/images/tocnam3.jpg", "/images/tocnam4.jpg"],
     dimensions: "Duration: 45 minutes",
   },
   {
     id: "2",
     name: "Hair Color Treatment",
     price: "$85",
-    image: "/hair-coloring-service.jpg",
+    image: "/images/tocnu1.jpg",
     badge: "Premium" as const,
     materials: ["Color Specialist", "Organic Dyes"],
     swatches: [
@@ -34,14 +35,14 @@ const featuredProducts = [
       { name: "Brunette", color: "#CC5500" },
       { name: "Red", color: "#B87333" },
     ],
-    quickLookImages: ["/hair-coloring-service.jpg", "/hair-color-detail.jpg", "/hair-color-result.jpg"],
+    quickLookImages: ["/images/tocnu2.jpg", "/images/tocnu3.jpg", "/images/tocnu4.jpg"],
     dimensions: "Duration: 90 minutes",
   },
   {
     id: "3",
     name: "Styling & Blowout",
     price: "$55",
-    image: "/professional-hair-styling.jpg",
+    image: "/images/tocnu5.jpg",
     badge: "Best Seller" as const,
     materials: ["Professional Styling", "Heat Protection"],
     swatches: [
@@ -49,7 +50,7 @@ const featuredProducts = [
       { name: "Straight", color: "#355E3B" },
       { name: "Curls", color: "#B87333" },
     ],
-    quickLookImages: ["/professional-hair-styling.jpg", "/hair-styling-waves.jpg", "/hair-styling-curls.jpg"],
+    quickLookImages: ["/images/tocnu6.jpg", "/images/tocnu7.jpg", "/images/tocnu8.jpg"],
     dimensions: "Duration: 60 minutes",
   },
 ]
@@ -57,6 +58,7 @@ const featuredProducts = [
 export function FeaturedProducts() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const isMobile = useIsMobile()
 
   const handleQuickLook = (product: any) => {
     setSelectedProduct(product)
@@ -69,23 +71,33 @@ export function FeaturedProducts() {
   }
 
   return (
-    <section className="py-20 lg:py-32 overflow-hidden" id="featured-products">
+    <section className="py-24 lg:py-40 overflow-hidden bg-black" id="featured-products">
       <div className="container-custom">
         <Reveal>
-          <div className="text-left mb-16">
-            <h2 className="text-4xl text-neutral-900 mb-4 lg:text-6xl">
-              Our <span className="italic font-light">Services</span>
+          <div className="text-left mb-20">
+            <h2 className={`font-black text-white mb-6 tracking-tighter leading-none ${
+              isMobile ? "text-4xl sm:text-5xl" : "text-6xl lg:text-8xl"
+            }`}>
+              OUR
+              <br />
+              <span className="block text-white/80 font-black">SERVICES</span>
             </h2>
-            <p className="text-lg text-neutral-600 max-w-2xl">
-              Discover our most popular hair services, each delivered with meticulous attention to detail and
-              personalized care.
+            <div className="w-16 h-1 bg-white mb-8" />
+            <p className={`text-white/70 max-w-xl font-light tracking-wide ${
+              isMobile ? "text-base" : "text-lg"
+            }`}>
+              Raw. Refined. Relentless. Premium hair services crafted with uncompromising attention to detail.
             </p>
           </div>
         </Reveal>
 
-        <div className="relative h-auto">
+        <div className="relative">
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-0 relative"
+            className={`grid gap-6 lg:gap-8 relative ${
+              isMobile 
+                ? "grid-cols-1" 
+                : "grid-cols-1 md:grid-cols-12"
+            }`}
             initial="hidden"
             animate="visible"
             variants={{
@@ -93,35 +105,45 @@ export function FeaturedProducts() {
               visible: {
                 opacity: 1,
                 transition: {
-                  staggerChildren: 0.2,
+                  staggerChildren: 0.15,
                 },
               },
             }}
           >
-            {/* Card 1 - Top Left */}
-            <div className="container"> 
-              <div className="card">
-                <div className="cardimg">
-                  <img src="/images/anh1.png" />
-                </div>
-                <div className="tag">
-                    <span>Popular</span>
-                </div>
-                <div className="curve_one"></div>
-                <div className="curve_two"></div>
-              </div>
-            </div>
-
-            {/* Card 2 - Center (overlapping) */}
+            {/* Card 1 */}
             <motion.div
-              className="md:col-span-1 relative z-40 md:-mt-12"
+              className={`relative z-30 ${
+                isMobile ? "" : "md:col-span-4 md:mt-12"
+              }`}
               variants={{
-                hidden: { opacity: 0, y: 40 },
+                hidden: { opacity: 0, y: 60 },
                 visible: {
                   opacity: 1,
                   y: 0,
                   transition: {
-                    duration: 0.8,
+                    duration: 0.9,
+                    ease: [0.21, 0.47, 0.32, 0.98],
+                  },
+                },
+              }}
+            >
+              <Reveal delay={0}>
+                <ServiceCard product={featuredProducts[0]} onQuickLook={handleQuickLook} position="left" />
+              </Reveal>
+            </motion.div>
+
+            {/* Card 2 */}
+            <motion.div
+              className={`relative z-40 ${
+                isMobile ? "" : "md:col-span-4"
+              }`}
+              variants={{
+                hidden: { opacity: 0, y: 60 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    duration: 0.9,
                     ease: [0.21, 0.47, 0.32, 0.98],
                   },
                 },
@@ -132,23 +154,25 @@ export function FeaturedProducts() {
               </Reveal>
             </motion.div>
 
-            {/* Card 3 - Top Right */}
+            {/* Card 3 */}
             <motion.div
-              className="md:col-span-1 relative z-20"
+              className={`relative z-20 ${
+                isMobile ? "" : "md:col-span-4 md:-mt-12"
+              }`}
               variants={{
-                hidden: { opacity: 0, y: 40 },
+                hidden: { opacity: 0, y: 60 },
                 visible: {
                   opacity: 1,
                   y: 0,
                   transition: {
-                    duration: 0.8,
+                    duration: 0.9,
                     ease: [0.21, 0.47, 0.32, 0.98],
                   },
                 },
               }}
             >
               <Reveal delay={0.2}>
-                <ServiceCard product={featuredProducts[2]} onQuickLook={handleQuickLook} position="top-right" />
+                <ServiceCard product={featuredProducts[2]} onQuickLook={handleQuickLook} position="right" />
               </Reveal>
             </motion.div>
           </motion.div>

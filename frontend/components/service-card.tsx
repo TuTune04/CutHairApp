@@ -5,6 +5,7 @@ import type React from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/useIsMobile"
 
 interface ServiceCardProps {
   product: {
@@ -19,84 +20,40 @@ interface ServiceCardProps {
     dimensions: string
   }
   onQuickLook: (product: any) => void
-  position: "top-left" | "center" | "top-right"
+  position: "left" | "center" | "right"
 }
 
 export function ServiceCard({ product, onQuickLook, position }: ServiceCardProps) {
+  const isMobile = useIsMobile()
+  
   const getCardStyle = () => {
-    const baseStyle = {
-      aspectRatio: "25/36",
-      "--r": "20px",
-      "--s": "40px",
-    } as React.CSSProperties & { "--r": string; "--s": string }
-
-    switch (position) {
-      case "top-left":
-        return {
-          ...baseStyle,
-          maskImage: `
-            calc(var(--s) + var(--r)) 0 var(--r) radial-gradient(#0000 70%, #000 72%) no-repeat,
-            0 calc(var(--s) + var(--r)) var(--r) radial-gradient(#0000 70%, #000 72%) no-repeat,
-            radial-gradient(var(--s) at 100% 100%, #0000 99%, #000 101%) calc(100% - var(--r)) calc(100% - var(--r)) no-repeat,
-            conic-gradient(at calc(100% - var(--s) - 2 * var(--r)) calc(100% - var(--s) - 2 * var(--r)), #000 75%, #0000 0)
-          `,
-          maskSize: "100% 100%",
-          maskComposite: "intersect",
-        }
-      case "center":
-        return {
-          ...baseStyle,
-          maskImage: `
-            radial-gradient(var(--s) at 0% 0%, #0000 99%, #000 101%) var(--r) var(--r) no-repeat,
-            radial-gradient(var(--s) at 100% 0%, #0000 99%, #000 101%) calc(100% - var(--r)) var(--r) no-repeat,
-            radial-gradient(var(--s) at 0% 100%, #0000 99%, #000 101%) var(--r) calc(100% - var(--r)) no-repeat,
-            radial-gradient(var(--s) at 100% 100%, #0000 99%, #000 101%) calc(100% - var(--r)) calc(100% - var(--r)) no-repeat
-          `,
-          maskSize: "100% 100%",
-          maskComposite: "intersect",
-        }
-      case "top-right":
-        return {
-          ...baseStyle,
-          maskImage: `
-            0 0 var(--r) radial-gradient(#0000 70%, #000 72%) no-repeat,
-            calc(100% - var(--s) - var(--r)) 0 var(--r) radial-gradient(#0000 70%, #000 72%) no-repeat,
-            radial-gradient(var(--s) at 0% 100%, #0000 99%, #000 101%) var(--r) calc(100% - var(--r)) no-repeat,
-            conic-gradient(at calc(var(--s) + 2 * var(--r)) calc(100% - var(--s) - 2 * var(--r)), #000 75%, #0000 0)
-          `,
-          maskSize: "100% 100%",
-          maskComposite: "intersect",
-        }
-      default:
-        return baseStyle
-    }
+    return {
+      aspectRatio: isMobile ? "4/5" : "3/4", // Taller on mobile for better content display
+    } as React.CSSProperties
   }
 
   return (
     <motion.div
-      className="group relative bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
+      className="group relative bg-black overflow-hidden border-2 border-white"
       style={getCardStyle()}
-      whileHover={{ y: -8 }}
-      transition={{ duration: 0.3 }}
+      whileHover={{ scale: 1.02, y: -12 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       layout
     >
-      {/* Badge */}
       {product.badge && (
-        <div className="absolute top-4 left-4 z-20">
-          <motion.span
+        <div className={`absolute z-20 ${isMobile ? "top-4 left-4" : "top-6 left-6"}`}>
+          <motion.div
             className={cn(
-              "px-3 py-1 text-xs font-medium rounded-full backdrop-blur-sm inline-block",
-              product.badge === "Popular" && "bg-emerald-500/90 text-white",
-              product.badge === "Premium" && "bg-purple-500/90 text-white",
-              product.badge === "Best Seller" && "bg-rose-500/90 text-white",
-              product.badge === "New" && "bg-green-500/90 text-white",
-              product.badge === "Back in stock" && "bg-blue-500/90 text-white",
-              product.badge === "Limited" && "bg-amber-500/90 text-white",
+              "font-black tracking-widest border-2 inline-block bg-black",
+              isMobile ? "px-3 py-1 text-xs" : "px-4 py-2 text-xs",
+              product.badge === "Popular" && "border-white text-white",
+              product.badge === "Premium" && "border-white text-white bg-white text-black",
+              product.badge === "Best Seller" && "border-white text-white",
             )}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.1 }}
           >
             {product.badge}
-          </motion.span>
+          </motion.div>
         </div>
       )}
 
@@ -104,42 +61,59 @@ export function ServiceCard({ product, onQuickLook, position }: ServiceCardProps
       <div className="relative w-full h-full">
         <motion.div
           className="w-full h-full"
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <Image
             src={product.image || "/placeholder.svg"}
             alt={product.name}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            className="object-cover group-hover:scale-105 transition-transform duration-700"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </motion.div>
       </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90" />
 
-      {/* Product Info */}
-      <div className="absolute bottom-0 left-0 right-0 p-6">
+      <div className={`absolute bottom-0 left-0 right-0 ${isMobile ? "p-4" : "p-8"}`}>
         <div className="relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h3 className="text-xl font-semibold text-white mb-2 drop-shadow-lg">{product.name}</h3>
-            <p className="text-sm text-white/85 mb-3 drop-shadow-md">{product.materials.join(" • ")}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold text-white drop-shadow-lg">{product.price}</span>
+            {/* Service name - bold and large */}
+            <h3 className={`font-black text-white mb-3 tracking-tight leading-tight ${
+              isMobile ? "text-xl" : "text-2xl lg:text-3xl"
+            }`}>
+              {product.name}
+            </h3>
+
+            {/* Materials - minimal and clean */}
+            <p className={`text-white/60 mb-4 font-light tracking-widest uppercase ${
+              isMobile ? "text-xs" : "text-xs"
+            }`}>
+              {product.materials.join(" • ")}
+            </p>
+
+            <div className={`bg-white mb-4 ${isMobile ? "w-8 h-1" : "w-12 h-1"}`} />
+
+            {/* Price and CTA */}
+            <div className="flex items-end justify-between">
+              <span className={`font-black text-white tracking-tighter ${
+                isMobile ? "text-2xl" : "text-3xl"
+              }`}>{product.price}</span>
               <motion.button
                 onClick={() => onQuickLook(product)}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg backdrop-blur-sm transition-all duration-300 border border-white/30"
+                className={`bg-white text-black font-black tracking-widest border-2 border-white hover:bg-black hover:text-white transition-all duration-300 uppercase ${
+                  isMobile ? "px-4 py-2 text-xs" : "px-6 py-3 text-sm"
+                }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Book Now
+                Book
               </motion.button>
             </div>
           </motion.div>

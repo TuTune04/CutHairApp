@@ -5,36 +5,38 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { Reveal } from "./reveal"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/useIsMobile"
 
 const materials = [
   {
     id: "brazilian",
     name: "Brazilian Blowout",
     description: "Luxurious smoothing treatment for silky, frizz-free hair",
-    image: "/placeholder.svg?height=600&width=600",
-    backgroundImage: "/placeholder.svg?height=1200&width=1200",
+    image: "/images/anh1.png",
+    backgroundImage: "/images/anh1.png",
     tint: "bg-green-50",
   },
   {
     id: "keratin",
     name: "Keratin Treatment",
     description: "Professional keratin infusion for strength and shine",
-    image: "/placeholder.svg?height=600&width=600",
-    backgroundImage: "/placeholder.svg?height=1200&width=1200",
+    image: "/images/anh1.png",
+    backgroundImage: "/images/anh1.png",
     tint: "bg-gray-100",
   },
   {
     id: "olaplex",
     name: "Olaplex Bond",
     description: "Advanced molecular repair for damaged and colored hair",
-    image: "/placeholder.svg?height=600&width=600",
-    backgroundImage: "/placeholder.svg?height=1200&width=1200",
+    image: "/images/anh1.png",
+    backgroundImage: "/images/anh1.png",
     tint: "bg-red-50",
   },
 ]
 
 export function MaterialsSection() {
   const [activeMaterial, setActiveMaterial] = useState("brazilian")
+  const isMobile = useIsMobile()
 
   const activeMaterialData = materials.find((m) => m.id === activeMaterial) || materials[0]
 
@@ -94,12 +96,16 @@ export function MaterialsSection() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="font-bold mb-6 text-7xl"
+                  className={`font-bold mb-6 ${
+                    isMobile ? "text-4xl sm:text-5xl" : "text-7xl"
+                  }`}
                 >
                   <AnimatedText text={activeMaterialData.name} delay={0.2} />
                 </motion.h2>
               </AnimatePresence>
-              <p className="text-lg text-white/90 leading-relaxed max-w-2xl">
+              <p className={`text-white/90 leading-relaxed max-w-2xl ${
+                isMobile ? "text-base" : "text-lg"
+              }`}>
                 Every treatment begins with premium products, carefully selected for their effectiveness and hair health
                 benefits. Our specialists use advanced techniques to deliver exceptional results.
               </p>
@@ -128,7 +134,8 @@ export function MaterialsSection() {
                 <motion.button
                   key={material.id}
                   className={cn(
-                    "px-6 py-3 rounded-full font-medium transition-all duration-300 backdrop-blur-md",
+                    "rounded-full font-medium transition-all duration-300 backdrop-blur-md",
+                    isMobile ? "px-4 py-2 text-sm" : "px-6 py-3",
                     activeMaterial === material.id
                       ? "bg-white text-neutral-900"
                       : "bg-white/20 text-white hover:bg-white/30",

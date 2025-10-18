@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { X, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { BlurPanel } from "./blur-panel"
+import { useIsMobile } from "@/hooks/useIsMobile"
 
 interface QuickLookModalProps {
   product: any
@@ -15,6 +16,7 @@ interface QuickLookModalProps {
 export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [selectedSwatch, setSelectedSwatch] = useState(0)
+  const isMobile = useIsMobile()
 
   if (!product) return null
 
@@ -30,7 +32,9 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className={`fixed inset-0 z-50 flex items-center justify-center ${
+            isMobile ? "p-2" : "p-4"
+          }`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -41,14 +45,18 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
 
           {/* Modal */}
           <motion.div
-            className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden"
+            className={`relative w-full overflow-hidden ${
+              isMobile ? "max-w-sm max-h-[120vh]" : "max-w-4xl max-h-[120vh]"
+            }`}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
           >
             <BlurPanel className="bg-white/95 backdrop-blur-md">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+              <div className={`grid gap-8 ${
+                isMobile ? "grid-cols-1 p-4" : "grid-cols-1 lg:grid-cols-2 p-8"
+              }`}>
                 {/* Image Gallery */}
                 <div className="relative">
                   <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
@@ -61,30 +69,36 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                     />
 
                     {/* Navigation Arrows */}
-                    {product.quickLookImages.length > 1 && (
+                    {/* {product.quickLookImages.length > 1 && (
                       <>
                         <button
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-200"
+                          className={`absolute top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-all duration-200 ${
+                            isMobile ? "left-2 p-1" : "left-4 p-2"
+                          }`}
                           onClick={prevImage}
                         >
-                          <ChevronLeft size={20} />
+                          <ChevronLeft size={isMobile ? 16 : 20} />
                         </button>
                         <button
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-200"
+                          className={`absolute top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-all duration-200 ${
+                            isMobile ? "right-2 p-1" : "right-4 p-2"
+                          }`}
                           onClick={nextImage}
                         >
-                          <ChevronRight size={20} />
+                          <ChevronRight size={isMobile ? 16 : 20} />
                         </button>
                       </>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Image Thumbnails */}
-                  <div className="flex gap-2">
+                  <div className={`flex gap-2 ${isMobile ? "justify-center" : ""}`}>
                     {product.quickLookImages.map((image: string, index: number) => (
                       <button
                         key={index}
-                        className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                        className={`relative rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                          isMobile ? "w-12 h-12" : "w-16 h-16"
+                        } ${
                           currentImageIndex === index ? "border-neutral-900" : "border-neutral-200"
                         }`}
                         onClick={() => setCurrentImageIndex(index)}
@@ -94,7 +108,7 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                           alt={`${product.name} thumbnail ${index + 1}`}
                           fill
                           className="object-cover"
-                          sizes="64px"
+                          sizes={isMobile ? "48px" : "64px"}
                         />
                       </button>
                     ))}
@@ -105,41 +119,59 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                 <div className="flex flex-col">
                   <div className="flex items-start justify-between mb-6">
                     <div>
-                      <h2 className="text-3xl font-bold text-neutral-900 mb-2">{product.name}</h2>
-                      <p className="text-lg text-neutral-600">{product.materials.join(", ")}</p>
+                      <h2 className={`font-bold text-neutral-900 mb-2 ${
+                        isMobile ? "text-xl" : "text-3xl"
+                      }`}>{product.name}</h2>
+                      <p className={`text-neutral-600 ${
+                        isMobile ? "text-sm" : "text-lg"
+                      }`}>{product.materials.join(", ")}</p>
                     </div>
                     <button
-                      className="p-2 hover:bg-neutral-100 rounded-full transition-colors duration-200"
+                      className={`hover:bg-neutral-100 rounded-full transition-colors duration-200 ${
+                        isMobile ? "p-1" : "p-2"
+                      }`}
                       onClick={onClose}
                     >
-                      <X size={24} />
+                      <X size={isMobile ? 20 : 24} />
                     </button>
                   </div>
 
-                  <div className="space-y-6 flex-1">
+                  <div className={`flex-1 ${isMobile ? "space-y-4" : "space-y-6"}`}>
                     {/* Price */}
-                    <div className="text-2xl font-bold text-neutral-900">{product.price}</div>
+                    <div className={`font-bold text-neutral-900 ${
+                      isMobile ? "text-xl" : "text-2xl"
+                    }`}>{product.price}</div>
 
                     {/* Dimensions */}
                     <div>
-                      <h4 className="text-sm font-medium text-neutral-900 mb-2">DIMENSIONS</h4>
-                      <p className="text-neutral-600">{product.dimensions}</p>
+                      <h4 className={`font-medium text-neutral-900 mb-2 ${
+                        isMobile ? "text-xs" : "text-sm"
+                      }`}>DIMENSIONS</h4>
+                      <p className={`text-neutral-600 ${
+                        isMobile ? "text-sm" : "text-base"
+                      }`}>{product.dimensions}</p>
                     </div>
 
                     {/* Material Swatches */}
                     <div>
-                      <h4 className="text-sm font-medium text-neutral-900 mb-3">FINISH</h4>
-                      <div className="flex gap-3">
+                      <h4 className={`font-medium text-neutral-900 mb-3 ${
+                        isMobile ? "text-xs" : "text-sm"
+                      }`}>FINISH</h4>
+                      <div className={`flex gap-3 ${isMobile ? "justify-center" : ""}`}>
                         {product.swatches.map((swatch: any, index: number) => (
                           <button
                             key={index}
-                            className={`w-8 h-8 rounded-full border-2 transition-all duration-200 relative group ${
+                            className={`rounded-full border-2 transition-all duration-200 relative group ${
+                              isMobile ? "w-6 h-6" : "w-8 h-8"
+                            } ${
                               selectedSwatch === index ? "border-neutral-900 scale-110" : "border-neutral-300"
                             }`}
                             style={{ backgroundColor: swatch.color }}
                             onClick={() => setSelectedSwatch(index)}
                           >
-                            <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-neutral-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                            <div className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-neutral-900 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none ${
+                              isMobile ? "text-xs" : "text-xs"
+                            }`}>
                               {swatch.name}
                             </div>
                           </button>
@@ -149,8 +181,12 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
 
                     {/* Features */}
                     <div>
-                      <h4 className="text-sm font-medium text-neutral-900 mb-3">FEATURES</h4>
-                      <ul className="space-y-2 text-sm text-neutral-600">
+                      <h4 className={`font-medium text-neutral-900 mb-3 ${
+                        isMobile ? "text-xs" : "text-sm"
+                      }`}>FEATURES</h4>
+                      <ul className={`text-neutral-600 ${
+                        isMobile ? "space-y-1 text-xs" : "space-y-2 text-sm"
+                      }`}>
                         <li>• Sustainably sourced materials</li>
                         <li>• Hand-finished edges</li>
                         <li>• Made to order in Belgium</li>
@@ -161,11 +197,13 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
 
                   {/* Add to Cart */}
                   <motion.button
-                    className="w-full bg-neutral-900 text-white py-4 rounded-full font-medium text-lg hover:bg-neutral-800 transition-colors duration-200 flex items-center justify-center gap-2"
+                    className={`w-full bg-neutral-900 text-white rounded-full font-medium hover:bg-neutral-800 transition-colors duration-200 flex items-center justify-center gap-2 ${
+                      isMobile ? "py-3 text-sm" : "py-4 text-lg"
+                    }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Plus size={20} />
+                    <Plus size={isMobile ? 16 : 20} />
                     Add to Cart
                   </motion.button>
                 </div>
