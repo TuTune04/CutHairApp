@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { ServiceCard } from "./service-card"
 import { QuickLookModal } from "./quick-look-modal"
 import { Reveal } from "./reveal"
-
+import "@/components/card.css"
 const featuredProducts = [
   {
     id: "1",
@@ -99,24 +99,18 @@ export function FeaturedProducts() {
             }}
           >
             {/* Card 1 - Top Left */}
-            <motion.div
-              className="md:col-span-1 relative z-30"
-              variants={{
-                hidden: { opacity: 0, y: 40 },
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    duration: 0.8,
-                    ease: [0.21, 0.47, 0.32, 0.98],
-                  },
-                },
-              }}
-            >
-              <Reveal delay={0}>
-                <ServiceCard product={featuredProducts[0]} onQuickLook={handleQuickLook} position="top-left" />
-              </Reveal>
-            </motion.div>
+            <div className="container"> 
+              <div className="card">
+                <div className="cardimg">
+                  <img src="/images/anh1.png" />
+                </div>
+                <div className="tag">
+                    <span>Popular</span>
+                </div>
+                <div className="curve_one"></div>
+                <div className="curve_two"></div>
+              </div>
+            </div>
 
             {/* Card 2 - Center (overlapping) */}
             <motion.div
