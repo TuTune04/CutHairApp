@@ -1,0 +1,31 @@
+.card {
+    --spacing: 4rem;
+    height: calc(100vh - var(--spacing) * 4);
+    top: var(--spacing);
+    position: relative;
+    width: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-bottom: 50px;
+    border-radius: 30px;
+    background-color: rgb(230, 17, 17);
+    border: 1px solid #000;
+    z-index: 3;
+}
+
+.card:nth-child(1) {
+    top: calc(var(--spacing) * 2);
+    background-color: rgb(17, 230, 110);
+}
+
+.card:nth-child(2) {
+    top: calc(var(--spacing) * 2);
+    background-color: rgb(17, 110, 230);
+}
+
+.card:nth-child(3) {
+    top: calc(var(--spacing) * 2);
+    background-color: rgb(230, 17, 17);
+}

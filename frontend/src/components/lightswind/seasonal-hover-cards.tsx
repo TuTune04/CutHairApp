@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from "@/src/lib/utils";
 
@@ -36,7 +35,6 @@ const SeasonCard = ({
         className="absolute inset-0 w-full h-full object-cover object-center"
         alt={imageAlt || title}
       />
-      <div className="absolute inset-0 bg-black bg-opacity-60"></div>
       <div className="relative md:absolute md:bottom-20 z-10 space-y-2">
         <h2 className="text-xl font-bold text-white">{title}</h2>
         <p className="text-sm text-gray-300">{subtitle}</p>
