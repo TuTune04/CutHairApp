@@ -8,8 +8,8 @@ import { NewsletterSection } from "@/src/components/newsletter-section"
 import { Footer } from "@/src/components/footer"
 import { SeasonalHoverCards } from "@/src/components/lightswind/seasonal-hover-cards"
 import SlidingCards from "@/src/components/lightswind/sliding-cards"
-import Test from "../components/lightswind/test"
-
+import SplitCard from "../components/lightswind/test"
+import {PackageCheck, Code2, User}  from "lucide-react"
 
 const cards = [
   {
@@ -56,7 +56,27 @@ export default function HomePage() {
       <CollectionStrip />
 
   <SeasonalHoverCards cards={cards} />
-      {/* <Test /> */}
+  <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-[90%]">
+        <SplitCard
+          icon={<PackageCheck size={48} />}
+          title="Portfolio"
+          description="Hover to reveal details"
+        />
+        <SplitCard
+          icon={<Code2 size={48} />}
+          title="Projects"
+          description="Explore my creative work"
+        />
+        <SplitCard
+          icon={<User size={48} />}
+          title="About Me"
+          description="Learn more about me"
+        />
+      </div>
+    </div>
+
+
       <MaterialsSection />
       <NewsletterSection />
       <Footer />
