@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { type RefObject, useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { ServiceCard } from "./service-card"
@@ -19,6 +19,21 @@ type FeaturedService = {
   quickLookImages: string[]
   dimensions: string
 }
+
+type CardFocus = 1 | 2 | 3
+
+type HeadingSideCopy = {
+  label: string
+  descriptionLines: string[]
+}
+
+type HeadingCopyByCard = Record<
+  CardFocus,
+  {
+    left: HeadingSideCopy
+    right: HeadingSideCopy
+  }
+>
 
 const featuredProducts: FeaturedService[] = [
   {
@@ -68,6 +83,99 @@ const featuredProducts: FeaturedService[] = [
   },
 ]
 
+const headingCopyByCard: HeadingCopyByCard = {
+  1: {
+    left: {
+      label: "Tạo kiểu nền tảng",
+      descriptionLines: [
+        "Từng lớp tóc được xử lý chuẩn xác",
+        "để giữ nếp tự nhiên, dễ chăm sóc",
+        "và phù hợp nhịp sống hằng ngày.",
+      ],
+    },
+    right: {
+      label: "Classic Haircut",
+      descriptionLines: [
+        "Đường cắt gọn, sạch và cân đối khuôn mặt.",
+        "Lựa chọn bền vững cho phong cách lịch lãm,",
+        "dễ duy trì mỗi ngày.",
+      ],
+    },
+  },
+  2: {
+    left: {
+      label: "Hair Color Treatment",
+      descriptionLines: [
+        "Phân tích tông da, nền tóc",
+        "và phong cách cá nhân để lên",
+        "công thức nhuộm hài hoà, tinh tế.",
+      ],
+    },
+    right: {
+      label: "Bảo vệ sau nhuộm",
+      descriptionLines: [
+        "Quy trình phục hồi và khoá màu",
+        "giúp tóc giữ độ bóng, hạn chế khô xơ,",
+        "duy trì sắc độ đẹp lâu hơn.",
+      ],
+    },
+  },
+  3: {
+    left: {
+      label: "Styling & Blowout",
+      descriptionLines: [
+        "Phom tóc vào nếp bồng bềnh, mềm mại",
+        "và giữ được độ chuyển động tự nhiên,",
+        "phù hợp đi làm lẫn sự kiện.",
+      ],
+    },
+    right: {
+      label: "Kỹ thuật hoàn thiện",
+      descriptionLines: [
+        "Kiểm soát nhiệt và sản phẩm tạo kiểu",
+        "đúng mức để tóc bóng, nhẹ",
+        "và hạn chế hư tổn sau tạo kiểu.",
+      ],
+    },
+  },
+}
+
+function HeadingPanel({
+  headingRef,
+  align,
+  copy,
+  isVisible = true,
+}: {
+  headingRef: RefObject<HTMLDivElement | null>
+  align: "left" | "right"
+  copy: HeadingSideCopy
+  isVisible?: boolean
+}) {
+  const isRight = align === "right"
+
+  return (
+    <div
+      ref={headingRef as RefObject<HTMLDivElement>}
+      className={`absolute top-0 w-[min(22rem,24vw)] ${isRight ? "right-0 text-right" : "left-0 text-left"}`}
+      style={{ willChange: "transform, opacity", visibility: isVisible ? "visible" : "hidden" }}
+    >
+      <p className="mb-4 text-xs uppercase tracking-[0.35em] text-white/40">{copy.label}</p>
+      <h2 className="mb-6 text-5xl font-black leading-none tracking-tighter text-white lg:text-7xl">
+        OUR
+        <br />
+        <span className="block font-black text-white/80">SERVICES</span>
+      </h2>
+      <div className={`mb-8 h-[2px] w-16 bg-white ${isRight ? "ml-auto" : ""}`} />
+      <p
+        className={`text-sm font-light leading-relaxed tracking-wide text-white/70 lg:text-base ${isRight ? "ml-auto" : ""}`}
+        style={{ whiteSpace: "pre-line" }}
+      >
+        {copy.descriptionLines.join("\n")}
+      </p>
+    </div>
+  )
+}
+
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
 }
@@ -75,11 +183,14 @@ if (typeof window !== "undefined") {
 export function FeaturedProducts() {
   const [selectedProduct, setSelectedProduct] = useState<FeaturedService | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeCard, setActiveCard] = useState<CardFocus>(3)
+  const activeCardRef = useRef<CardFocus>(3)
   const isMobile = useIsMobile()
 
   const sectionRef = useRef<HTMLElement | null>(null)
   const cardsRef = useRef<HTMLDivElement[]>([])
-  const headingRef = useRef<HTMLDivElement | null>(null)
+  const headingLeftRef = useRef<HTMLDivElement | null>(null)
+  const headingRightRef = useRef<HTMLDivElement | null>(null)
 
   const handleQuickLook = (product: FeaturedService) => {
     setSelectedProduct(product)
@@ -97,11 +208,26 @@ export function FeaturedProducts() {
     const ctx = gsap.context(() => {
       const section = sectionRef.current
       const cards = cardsRef.current
-      const heading = headingRef.current
+      const headingLeft = headingLeftRef.current
+      const headingRight = headingRightRef.current
 
-      if (!section || cards.length < 3 || !heading) return
+      if (!section || cards.length < 3 || !headingLeft || !headingRight) return
 
       const [card1, card2, card3] = cards
+      const syncActiveCard = () => {
+        const opacity1 = Number(gsap.getProperty(card1, "opacity")) || 0
+        const opacity2 = Number(gsap.getProperty(card2, "opacity")) || 0
+        const opacity3 = Number(gsap.getProperty(card3, "opacity")) || 0
+
+        let nextCard: CardFocus = 1
+        if (opacity2 >= opacity1 && opacity2 >= opacity3) nextCard = 2
+        if (opacity3 >= opacity1 && opacity3 >= opacity2) nextCard = 3
+
+        if (activeCardRef.current !== nextCard) {
+          activeCardRef.current = nextCard
+          setActiveCard(nextCard)
+        }
+      }
 
       gsap.set([card1, card2, card3], {
         xPercent: -50,
@@ -118,17 +244,10 @@ export function FeaturedProducts() {
       gsap.set(card2, { y: 0 })
       gsap.set(card3, { y: -40 })
 
-      // Function to get current dimensions
-      const getDimensions = () => {
-        const container = heading.parentElement
-        const containerWidth = container?.offsetWidth || window.innerWidth
-        const headingWidth = heading.offsetWidth || 768 // fallback to max-w-3xl (48rem = 768px)
-        return { containerWidth, headingWidth }
-      }
-      
-      // Set initial heading position (left for card 3) and text alignment
-      gsap.set(heading, { x: 0 })
-      gsap.set(heading, { textAlign: "left" })
+      // Initial heading state:
+      // Card 3 focus => show left only
+      gsap.set(headingLeft, { autoAlpha: 1, x: 0 })
+      gsap.set(headingRight, { autoAlpha: 0, x: 60 })
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -136,6 +255,7 @@ export function FeaturedProducts() {
           start: "top top",
           end: "+=3000",
           scrub: true,
+          onUpdate: syncActiveCard,
         },
       })
       
@@ -148,59 +268,33 @@ export function FeaturedProducts() {
         .to(card3, { y: "-50vh", scale: 0.95, ease: "none" })
         .to(card2, { y: "80vh", opacity: 0.2, ease: "none" }, "<")
         .to(card1, { y: "110vh", opacity: 0, ease: "none" }, "<")
-        .to(heading, { x: 0, ease: "none" }, "<") // Giữ heading ở bên trái
-        .call(() => {
-          heading.style.textAlign = "left"
-        }, [], "<")
+        .to(headingLeft, { autoAlpha: 1, x: 0, ease: "none" }, "<")
+        .to(headingRight, { autoAlpha: 0, x: 60, ease: "none" }, "<")
         .to(card3, { y: "-50vh", scale: 0.95, ease: "none", duration: 1.5 })
-        .to(heading, { x: 0, duration: 1.5 }, "<") // Giữ heading ở bên trái
+        .to(headingLeft, { autoAlpha: 1, x: 0, duration: 1.5 }, "<")
+        .to(headingRight, { autoAlpha: 0, x: 60, duration: 1.5 }, "<")
       
       // ===== PHASE 3 — Focus Card 2 (heading ở giữa/2 bên) =====
         .to(card3, { y: "-80vh", opacity: 0, ease: "none", duration: 1 })
         .to(card2, { y: "-50vh", scale: 0.95, opacity: 1, ease: "none", duration: 1.5 }, "<")
-        .to(heading, { 
-          x: () => {
-            const { containerWidth, headingWidth } = getDimensions()
-            return (containerWidth - headingWidth) / 2
-          }, 
-          ease: "none", 
-          duration: 1.5 
-        }, "<") // Di chuyển heading ra giữa
-        .call(() => {
-          heading.style.textAlign = "center"
-        }, [], "<")
+        .to(headingLeft, { autoAlpha: 1, x: 0, ease: "none", duration: 1.5 }, "<")
+        .to(headingRight, { autoAlpha: 1, x: 0, ease: "none", duration: 1.5 }, "<")
         // Giữ card2 thêm một đoạn
         .to(card2, { y: "-50vh", duration: 2 })
-        .to(heading, { 
-          x: () => {
-            const { containerWidth, headingWidth } = getDimensions()
-            return (containerWidth - headingWidth) / 2
-          }, 
-          duration: 2 
-        }, "<") // Giữ heading ở giữa
+        .to(headingLeft, { autoAlpha: 1, x: 0, duration: 2 }, "<")
+        .to(headingRight, { autoAlpha: 1, x: 0, duration: 2 }, "<")
       
       // ===== PHASE 4 — Focus Card 1 (heading ở bên phải) =====
       .to(card2, { y: "-80vh", opacity: 0, ease: "none", duration: 1 })
       .to(card1, { y: "-50vh", scale: 0.95, opacity: 1, ease: "none", duration: 2.5 }, "<")
-      .to(heading, { 
-        x: () => {
-          const { containerWidth, headingWidth } = getDimensions()
-          return containerWidth - headingWidth
-        }, 
-        ease: "none", 
-        duration: 2.5 
-      }, "<") // Di chuyển heading sang bên phải
-      .call(() => {
-        heading.style.textAlign = "right"
-      }, [], "<")
+      .to(headingLeft, { autoAlpha: 0, x: -60, ease: "none", duration: 2.5 }, "<")
+      .to(headingRight, { autoAlpha: 1, x: 0, ease: "none", duration: 2.5 }, "<")
       .to(card1, { y: "-50vh", duration: 1.5 })
-      .to(heading, { 
-        x: () => {
-          const { containerWidth, headingWidth } = getDimensions()
-          return containerWidth - headingWidth
-        }, 
-        duration: 1.5 
-      }, "<") // Giữ heading ở bên phải
+      .to(headingLeft, { autoAlpha: 0, x: -60, duration: 1.5 }, "<")
+      .to(headingRight, { autoAlpha: 1, x: 0, duration: 1.5 }, "<")
+
+      // Sync once after setup to avoid initial mismatch.
+      syncActiveCard()
       
     }, sectionRef)
 
@@ -231,19 +325,19 @@ export function FeaturedProducts() {
             {/* HEADING LAYER */}
             <div className="relative z-20 pt-[18vh] w-full">
               <Reveal>
-                <div ref={headingRef} className="max-w-3xl" style={{ willChange: 'transform', textAlign: 'left' }}>
-                  <p className="text-xs uppercase tracking-[0.35em] text-white/40 mb-4">
-                    Signature experiences
-                  </p>
-                  <h2 className="font-black text-white mb-6 tracking-tighter leading-none text-6xl lg:text-8xl">
-                    OUR
-                    <br />
-                    <span className="block text-white/80 font-black">SERVICES</span>
-                  </h2>
-                  <div className="w-16 h-[2px] bg-white mb-8" />
-                  <p className="text-white/70 max-w-xl font-light tracking-wide text-lg">
-                    Raw. Refined. Relentless. Premium hair services crafted with uncompromising attention to detail.
-                  </p>
+                <div className="relative h-[320px] lg:h-[360px]">
+                  <HeadingPanel
+                    headingRef={headingLeftRef}
+                    align="left"
+                    copy={headingCopyByCard[activeCard].left}
+                    isVisible={activeCard !== 1}
+                  />
+                  <HeadingPanel
+                    headingRef={headingRightRef}
+                    align="right"
+                    copy={headingCopyByCard[activeCard].right}
+                    isVisible={activeCard !== 3}
+                  />
                 </div>
               </Reveal>
             </div>
@@ -282,6 +376,8 @@ export function FeaturedProducts() {
           </div>
         </div>
       </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-48 bg-gradient-to-b from-transparent via-black/70 to-zinc-950" />
 
       <QuickLookModal product={selectedProduct} isOpen={isModalOpen} onClose={closeModal} />
     </section>

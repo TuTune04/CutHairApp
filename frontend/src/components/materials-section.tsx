@@ -146,7 +146,7 @@ export function MaterialsSection() {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden" id="materials">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black" id="materials">
       <div className="absolute inset-0 z-0">
         {materials.map((material) => (
           <motion.div
@@ -167,6 +167,8 @@ export function MaterialsSection() {
         ))}
         <div className="absolute inset-0 bg-black/20" />
       </div>
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-40 bg-gradient-to-b from-black via-black/70 to-transparent" />
 
       <div className="absolute top-[120px] left-0 right-0 z-10">
         <div className="container-custom text-white">

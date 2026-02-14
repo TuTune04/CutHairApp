@@ -31,8 +31,11 @@ const seasonalCards = [
 
 export function SeasonalSection() {
   return (
-    <section className="py-20 lg:py-28 bg-black">
-      <div className="container-custom space-y-10">
+    <section className="relative overflow-hidden py-24 lg:py-32 bg-gradient-to-b from-black via-zinc-950 to-black">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent via-black/70 to-black" />
+
+      <div className="container-custom relative z-10 space-y-12">
         <div className="max-w-2xl">
           <p className="text-xs uppercase tracking-[0.35em] text-white/40 mb-4">
             Seasonal moods
@@ -49,6 +52,12 @@ export function SeasonalSection() {
         </div>
 
         <SeasonalHoverCards cards={seasonalCards} className="mt-6" />
+
+        <div className="pt-4">
+          <p className="text-white/50 text-xs uppercase tracking-[0.28em]">
+            Next chapter: materials and treatment stories
+          </p>
+        </div>
       </div>
     </section>
   )
