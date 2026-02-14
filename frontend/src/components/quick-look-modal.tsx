@@ -6,19 +6,15 @@ import Image from "next/image"
 import { X, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { BlurPanel } from "./blur-panel"
 import { useIsMobile } from "@/src/hooks/useIsMobile"
-
-interface QuickLookProduct {
-  id: string
-  name: string
-  price: string
-  materials: string[]
-  swatches: { name: string; color: string }[]
-  quickLookImages: string[]
-  dimensions: string
-}
+import type { FeaturedService } from "@/src/types/catalog"
+import {
+  defaultQuickLookHighlights,
+  quickLookHighlightsByServiceId,
+  quickLookUiText,
+} from "@/src/data/quick-look-content"
 
 interface QuickLookModalProps {
-  product: QuickLookProduct | null
+  product: FeaturedService | null
   isOpen: boolean
   onClose: () => void
 }
@@ -45,6 +41,7 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
     setCurrentImageIndex((prev) => (prev - 1 + product.quickLookImages.length) % product.quickLookImages.length)
   }
 
+  const highlightItems = quickLookHighlightsByServiceId[product.id] ?? defaultQuickLookHighlights
   const sectionTitleClass = "mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500"
 
   return (
@@ -76,7 +73,7 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
               {isMobile && (
                 <div className="sticky top-0 z-20 flex items-center justify-between border-b border-neutral-200/80 bg-white/95 px-4 py-3">
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">Quick Look</p>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">{quickLookUiText.mobileTitle}</p>
                     <p className="text-sm font-semibold text-neutral-900">{product.name}</p>
                   </div>
                   <button className="rounded-full p-2 transition-colors hover:bg-neutral-100" onClick={onClose}>
@@ -101,14 +98,14 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                         <button
                           className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 backdrop-blur-sm transition-colors hover:bg-white"
                           onClick={prevImage}
-                          aria-label="Previous image"
+                          aria-label={quickLookUiText.prevImageAria}
                         >
                           <ChevronLeft size={18} />
                         </button>
                         <button
                           className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 p-2 backdrop-blur-sm transition-colors hover:bg-white"
                           onClick={nextImage}
-                          aria-label="Next image"
+                          aria-label={quickLookUiText.nextImageAria}
                         >
                           <ChevronRight size={18} />
                         </button>
@@ -131,7 +128,7 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                       >
                         <Image
                           src={image || "/placeholder.svg"}
-                          alt={`${product.name} thumbnail ${index + 1}`}
+                          alt={`${quickLookUiText.thumbnailAriaPrefix} ${index + 1}`}
                           fill
                           className="object-cover"
                           sizes="64px"
@@ -164,12 +161,12 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                   <div className={`${isMobile ? "text-2xl" : "text-xl"} font-bold text-neutral-900`}>{product.price}</div>
 
                   <div>
-                    <h4 className={sectionTitleClass}>Duration</h4>
+                    <h4 className={sectionTitleClass}>{quickLookUiText.durationLabel}</h4>
                     <p className={`${isMobile ? "text-sm" : "text-[13px]"} text-neutral-700`}>{product.dimensions}</p>
                   </div>
 
                   <div>
-                    <h4 className={sectionTitleClass}>Style Finish</h4>
+                    <h4 className={sectionTitleClass}>{quickLookUiText.finishLabel}</h4>
                     <div className="flex items-center gap-3">
                       {product.swatches.map((swatch, index) => (
                         <button
@@ -183,15 +180,17 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                         />
                       ))}
                     </div>
-                    <p className="mt-2 text-xs text-neutral-600">Selected: {product.swatches[selectedSwatch]?.name}</p>
+                    <p className="mt-2 text-xs text-neutral-600">
+                      {quickLookUiText.selectedLabel}: {product.swatches[selectedSwatch]?.name}
+                    </p>
                   </div>
 
                   <div>
-                    <h4 className={sectionTitleClass}>Highlights</h4>
+                    <h4 className={sectionTitleClass}>{quickLookUiText.highlightsLabel}</h4>
                     <ul className={`${isMobile ? "space-y-2 text-sm" : "space-y-1.5 text-[13px]"} text-neutral-700`}>
-                      <li>• Consultation and style recommendation included</li>
-                      <li>• Premium products matched to your hair type</li>
-                      <li>• Finishing and after-care tips from stylists</li>
+                      {highlightItems.map((item) => (
+                        <li key={item}>• {item}</li>
+                      ))}
                     </ul>
                   </div>
 
@@ -202,7 +201,7 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                       whileTap={{ scale: 0.98 }}
                     >
                       <Plus size={18} />
-                      Book This Service
+                      {quickLookUiText.bookButton}
                     </motion.button>
                   )}
                 </div>
@@ -215,7 +214,7 @@ export function QuickLookModal({ product, isOpen, onClose }: QuickLookModalProps
                     whileTap={{ scale: 0.98 }}
                   >
                     <Plus size={16} />
-                    Book This Service
+                    {quickLookUiText.bookButton}
                   </motion.button>
                 </div>
               ) : null}
