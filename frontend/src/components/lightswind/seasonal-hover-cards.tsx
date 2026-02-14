@@ -1,5 +1,7 @@
-import React from 'react';
-import { cn } from "@/src/lib/utils";
+"use client"
+
+import React from "react"
+import { cn } from "@/src/lib/utils"
 
 export interface SeasonCardProps {
   title: string;
@@ -10,9 +12,16 @@ export interface SeasonCardProps {
   className?: string;
 }
 
+type SeasonCardInternalProps = SeasonCardProps & {
+  isActive?: boolean
+  onSelect?: () => void
+}
+
 interface SeasonalHoverCardsProps {
-  cards: SeasonCardProps[];
-  className?: string;
+  cards: SeasonCardProps[]
+  className?: string
+  activeIndex?: number
+  onSelectCard?: (index: number) => void
 }
 
 const SeasonCard = ({
@@ -22,11 +31,17 @@ const SeasonCard = ({
   imageSrc,
   imageAlt,
   className,
-}: SeasonCardProps) => {
+  isActive = false,
+  onSelect,
+}: SeasonCardInternalProps) => {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onSelect}
+      onMouseEnter={onSelect}
       className={cn(
-        "group relative flex flex-col justify-end p-6 w-full md:w-1/3 h-[350px] lg:h-[450px] bg-black rounded-lg overflow-hidden shadow-lg transition-all duration-500 hover:w-2/3",
+        "group relative flex h-[320px] w-full flex-col justify-end overflow-hidden rounded-lg bg-black p-6 shadow-lg transition-all duration-500 md:h-[350px] md:w-1/3 lg:h-[450px] hover:w-2/3",
+        isActive && "ring-2 ring-white/60",
         className
       )}
     >
@@ -42,13 +57,15 @@ const SeasonCard = ({
       <div className="mt-4 transform translate-y-6 opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
         <p className="text-lg text-white">{description}</p>
       </div>
-    </div>
-  );
-};
+    </button>
+  )
+}
 
 export function SeasonalHoverCards({
   cards,
   className,
+  activeIndex = 0,
+  onSelectCard,
 }: SeasonalHoverCardsProps) {
   return (
     <div className={cn("flex flex-wrap md:flex-nowrap gap-4 w-full px-4", className)}>
@@ -60,8 +77,10 @@ export function SeasonalHoverCards({
           description={card.description}
           imageSrc={card.imageSrc}
           imageAlt={card.imageAlt}
+          isActive={activeIndex === index}
+          onSelect={() => onSelectCard?.(index)}
         />
       ))}
     </div>
-  );
+  )
 }
