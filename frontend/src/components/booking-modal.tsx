@@ -13,48 +13,48 @@ interface HairstyleOption {
   image: string
   description: string
   faceShapes: string[]
-  estimatedTime: number // in minutes
+  estimatedTime: number // minutes
 }
 
 const maleHairstyles: HairstyleOption[] = [
   {
     id: "fade",
-    name: "Fade Cut",
+    name: "Cắt Fade",
     image: "/images/tocnam1.jpg",
-    description: "Classic fade with clean lines, perfect for a polished professional look.",
-    faceShapes: ["Oval", "Square", "Rectangle"],
+    description: "Kiểu fade cổ điển với đường cắt gọn gàng, phù hợp phong cách lịch lãm.",
+    faceShapes: ["Trái xoan", "Vuông", "Chữ nhật"],
     estimatedTime: 30,
   },
   {
     id: "undercut",
     name: "Undercut",
     image: "/images/tocnam2.jpg",
-    description: "Bold contrast between short sides and longer top, versatile styling options.",
-    faceShapes: ["Round", "Oval", "Square"],
+    description: "Tương phản rõ giữa hai bên cắt ngắn và phần tóc trên dài hơn, dễ tạo kiểu.",
+    faceShapes: ["Tròn", "Trái xoan", "Vuông"],
     estimatedTime: 35,
   },
   {
     id: "pompadour",
     name: "Pompadour",
     image: "/images/tocnam3.jpg",
-    description: "Vintage-inspired style with volume on top, requires regular maintenance.",
-    faceShapes: ["Oval", "Rectangle", "Diamond"],
+    description: "Phong cách cổ điển, tạo độ phồng nổi bật ở phần đỉnh tóc.",
+    faceShapes: ["Trái xoan", "Chữ nhật", "Kim cương"],
     estimatedTime: 40,
   },
   {
     id: "crew",
     name: "Crew Cut",
     image: "/images/tocnam4.jpg",
-    description: "Short and neat, low maintenance classic that suits most face shapes.",
-    faceShapes: ["All"],
+    description: "Gọn gàng, ít cần chăm sóc, phù hợp hầu hết dáng khuôn mặt.",
+    faceShapes: ["Mọi dáng mặt"],
     estimatedTime: 25,
   },
   {
     id: "textured",
     name: "Textured",
     image: "/images/tocnu1.jpg",
-    description: "Modern textured cut with movement, great for casual and formal settings.",
-    faceShapes: ["Oval", "Square", "Round"],
+    description: "Kiểu tóc hiện đại có độ texture và chuyển động tự nhiên.",
+    faceShapes: ["Trái xoan", "Vuông", "Tròn"],
     estimatedTime: 35,
   },
 ]
@@ -62,42 +62,42 @@ const maleHairstyles: HairstyleOption[] = [
 const femaleHairstyles: HairstyleOption[] = [
   {
     id: "bob",
-    name: "Bob Cut",
+    name: "Tóc Bob",
     image: "/images/tocnu2.jpg",
-    description: "Timeless bob with clean lines, flattering and easy to style.",
-    faceShapes: ["Oval", "Square", "Heart"],
+    description: "Kiểu bob kinh điển, đường cắt rõ nét, tôn khuôn mặt và dễ tạo kiểu.",
+    faceShapes: ["Trái xoan", "Vuông", "Trái tim"],
     estimatedTime: 45,
   },
   {
     id: "layers",
-    name: "Layered",
+    name: "Tóc Layer",
     image: "/images/tocnu3.jpg",
-    description: "Textured layers add movement and volume, perfect for all hair types.",
-    faceShapes: ["Round", "Oval", "Rectangle"],
+    description: "Tạo tầng giúp tóc bồng bềnh và có độ chuyển động tự nhiên.",
+    faceShapes: ["Tròn", "Trái xoan", "Chữ nhật"],
     estimatedTime: 50,
   },
   {
     id: "waves",
-    name: "Waves",
+    name: "Uốn Sóng",
     image: "/images/tocnu4.jpg",
-    description: "Soft waves for a romantic, effortless look with natural movement.",
-    faceShapes: ["All"],
+    description: "Lọn sóng mềm mại, nhẹ nhàng, mang lại vẻ nữ tính tự nhiên.",
+    faceShapes: ["Mọi dáng mặt"],
     estimatedTime: 55,
   },
   {
     id: "pixie",
     name: "Pixie Cut",
     image: "/images/tocnu5.jpg",
-    description: "Short and chic, bold statement cut that requires minimal styling.",
-    faceShapes: ["Oval", "Heart", "Diamond"],
+    description: "Cá tính, gọn nhẹ, tạo điểm nhấn nổi bật cho khuôn mặt.",
+    faceShapes: ["Trái xoan", "Trái tim", "Kim cương"],
     estimatedTime: 35,
   },
   {
     id: "long",
-    name: "Long Hair",
+    name: "Tóc Dài",
     image: "/images/tocnu6.jpg",
-    description: "Flowing long hair with subtle layers for dimension and elegance.",
-    faceShapes: ["All"],
+    description: "Tóc dài mềm mại kết hợp layer nhẹ tạo chiều sâu và vẻ thanh lịch.",
+    faceShapes: ["Mọi dáng mặt"],
     estimatedTime: 60,
   },
 ]
@@ -124,6 +124,11 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const selectedHairstyle = hairstyles.find((s) => s.id === selectedStyle)
 
   const handleStyleHover = (style: HairstyleOption) => {
+    setSelectedStyle(style.id)
+    setPreviewImage(style.image)
+  }
+
+  const handleSelectStyle = (style: HairstyleOption) => {
     setSelectedStyle(style.id)
     setPreviewImage(style.image)
   }
@@ -158,12 +163,12 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="bg-white w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <div className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden bg-white">
               {/* Header */}
               <div className="sticky top-0 bg-white border-b border-gray-100 px-8 py-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-black">Book Appointment</h2>
-                  <p className="text-xs text-gray-500 mt-1">Select style and confirm details</p>
+                  <h2 className="text-xl font-bold text-black">Đặt lịch hẹn</h2>
+                  <p className="mt-1 text-xs text-gray-500">Chọn kiểu tóc và điền thông tin</p>
                 </div>
                 <button
                   onClick={onClose}
@@ -174,7 +179,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
               </div>
 
               {/* Content */}
-              <div className="p-8">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-8 pb-28">
                 {!gender ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -182,48 +187,44 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     className="flex gap-4 justify-center"
                   >
                     <button
-                      onClick={() => setGender("male")}
+                      onClick={() => {
+                        setGender("male")
+                        setSelectedStyle(maleHairstyles[0].id)
+                        setPreviewImage(maleHairstyles[0].image)
+                      }}
                       className="flex flex-col items-center gap-3 p-6 border border-gray-200 rounded-lg hover:border-black hover:bg-gray-50 transition-all group"
                     >
-                      <div className="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-black transition-colors flex items-center justify-center">
-                        <span className="text-lg group-hover:text-white transition-colors">♂</span>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 transition-colors group-hover:bg-blue-600">
+                        <span className="text-lg text-blue-700 transition-colors group-hover:text-white">♂</span>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">Men's Cut</span>
+                      <span className="text-sm font-semibold text-gray-900">Cắt tóc nam</span>
                     </button>
                     <button
-                      onClick={() => setGender("female")}
+                      onClick={() => {
+                        setGender("female")
+                        setSelectedStyle(femaleHairstyles[0].id)
+                        setPreviewImage(femaleHairstyles[0].image)
+                      }}
                       className="flex flex-col items-center gap-3 p-6 border border-gray-200 rounded-lg hover:border-black hover:bg-gray-50 transition-all group"
                     >
-                      <div className="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-black transition-colors flex items-center justify-center">
-                        <span className="text-lg group-hover:text-white transition-colors">♀</span>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 transition-colors group-hover:bg-pink-600">
+                        <span className="text-lg text-pink-700 transition-colors group-hover:text-white">♀</span>
                       </div>
-                      <span className="text-sm font-semibold text-gray-900">Women's Cut</span>
+                      <span className="text-sm font-semibold text-gray-900">Cắt tóc nữ</span>
                     </button>
                   </motion.div>
                 ) : (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                    {/* Back button */}
-                    <button
-                      onClick={() => {
-                        setGender(null)
-                        setSelectedStyle(null)
-                        setPreviewImage("")
-                      }}
-                      className="text-xs font-semibold text-gray-500 hover:text-black transition-colors uppercase tracking-wide"
-                    >
-                      ← Back
-                    </button>
-
                     {/* Main content - 3 column layout */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                       {/* Left: Large Preview */}
                       <div className="lg:col-span-1">
-                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Preview</h3>
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Xem trước</h3>
                         <div className="relative w-full aspect-square bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
                           {previewImage ? (
                             <Image
                               src={previewImage || "/placeholder.svg"}
-                              alt="Hairstyle preview"
+                              alt="Xem trước kiểu tóc"
                               fill
                               className="object-cover"
                             />
@@ -240,14 +241,14 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                         {/* Style Selection */}
                         <div>
                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                            Choose Style
+                            Chọn kiểu tóc
                           </h3>
                           <div className="grid grid-cols-5 gap-2">
                             {hairstyles.map((style) => (
                               <motion.button
                                 key={style.id}
                                 onHoverStart={() => handleStyleHover(style)}
-                                onClick={() => setSelectedStyle(style.id)}
+                                onClick={() => handleSelectStyle(style)}
                                 className={`relative aspect-square rounded-lg border-2 overflow-hidden transition-all group ${
                                   selectedStyle === style.id
                                     ? "border-black shadow-lg"
@@ -281,14 +282,14 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                           >
                             <div>
                               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                                Description
+                                Mô tả
                               </p>
                               <p className="text-sm text-gray-700 leading-relaxed">{selectedHairstyle.description}</p>
                             </div>
 
                             <div>
                               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                                Best For Face Shapes
+                                Dáng mặt phù hợp
                               </p>
                               <div className="flex flex-wrap gap-1">
                                 {selectedHairstyle.faceShapes.map((shape) => (
@@ -304,11 +305,11 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
                             <div>
                               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                                Estimated Time
+                                Thời gian ước tính
                               </p>
                               <p className="text-sm text-gray-700 flex items-center gap-2">
                                 <Clock className="w-4 h-4" />
-                                {selectedHairstyle.estimatedTime} minutes
+                                {selectedHairstyle.estimatedTime} phút
                               </p>
                             </div>
 
@@ -317,16 +318,16 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                               className="w-full mt-3 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                             >
                               <Sparkles className="w-4 h-4" />
-                              Try Hairstyle
+                              Thử kiểu tóc
                             </button>
                           </motion.div>
                         )}
                       </div>
 
                       {/* Right: Form */}
-                      <form onSubmit={handleSubmit} className="lg:col-span-1 space-y-3">
+                      <form id="booking-form" onSubmit={handleSubmit} className="lg:col-span-1 space-y-3">
                         <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
-                          Your Details
+                          Thông tin của bạn
                         </h3>
 
                         {/* Name */}
@@ -340,7 +341,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:border-black focus:outline-none transition-colors text-sm placeholder-gray-400"
-                            placeholder="Full name"
+                            placeholder="Họ và tên"
                           />
                         </div>
 
@@ -370,12 +371,12 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:border-black focus:outline-none transition-colors text-sm placeholder-gray-400"
-                            placeholder="Phone"
+                            placeholder="Số điện thoại"
                           />
                         </div>
 
-                        {/* Date & Time in row */}
-                        {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3"> */}
+                        {/* Date & Time */}
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div className="relative">
                                 <div className="absolute left-3 top-2.5 text-gray-400">
                                 <Calendar className="w-4 h-4" />
@@ -385,7 +386,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                                 required
                                 value={formData.date}
                                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:border-black focus:outline-none transition-colors text-sm"
+                                className="w-full min-h-[42px] rounded-lg border border-gray-200 py-2 pl-10 pr-2 text-[16px] sm:text-sm focus:border-black focus:outline-none transition-colors"
                                 />
                             </div>
                             <div className="relative">
@@ -397,10 +398,10 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                                 required
                                 value={formData.time}
                                 onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:border-black focus:outline-none transition-colors text-sm"
+                                className="w-full min-h-[42px] rounded-lg border border-gray-200 py-2 pl-10 pr-2 text-[16px] sm:text-sm focus:border-black focus:outline-none transition-colors"
                                 />
                             </div>
-                        {/* </div> */}
+                        </div>
 
 
                         {/* Notes */}
@@ -413,35 +414,47 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                             className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:border-black focus:outline-none transition-colors text-sm placeholder-gray-400 resize-none"
                             rows={2}
-                            placeholder="Notes"
+                            placeholder="Ghi chú"
                           />
                         </div>
 
-                        {/* Buttons */}
-                        <div className="flex gap-2 pt-3">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setGender(null)
-                              setSelectedStyle(null)
-                              setPreviewImage("")
-                            }}
-                            className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            className="flex-1 px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition-colors"
-                          >
-                            Book
-                          </button>
-                        </div>
                       </form>
                     </div>
                   </motion.div>
                 )}
               </div>
+
+              {gender && (
+                <div className="sticky bottom-0 z-20 border-t border-gray-100 bg-white/95 px-8 py-4 backdrop-blur-sm">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGender(null)
+                        setSelectedStyle(null)
+                        setPreviewImage("")
+                      }}
+                      className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                      Quay lại
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                      Đóng
+                    </button>
+                    <button
+                      type="submit"
+                      form="booking-form"
+                      className="rounded-lg bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-900"
+                    >
+                      Đặt lịch
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         </>

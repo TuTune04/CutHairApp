@@ -97,7 +97,7 @@ export function HeroSection() {
 
         {/* Info Strip */}
         <motion.div
-          className="absolute bottom-0 left-0 right-0 z-[999] flex justify-center"
+          className="absolute bottom-0 left-0 right-0 z-[50] flex justify-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.2, ease: [0.21, 0.47, 0.32, 0.98] }}
@@ -106,18 +106,18 @@ export function HeroSection() {
             <div className="flex items-center justify-center gap-6 text-white/90">
               <div className="flex items-center gap-2">
                 <PackageCheck className="w-4 h-4 text-green-400" />
-                <span className="text-sm">Expert Stylists</span>
+                <span className="text-sm">Liên hệ Zalo</span>
               </div>
               <button
                 onClick={() => setIsBookingOpen(true)}
                 className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
               >
                 <Rocket className="w-4 h-4 text-amber-400" />
-                <span className="text-sm">Quick Booking</span>
+                <span className="text-sm">Đặt Lịch Ngay</span>
               </button>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-blue-400" />
-                <span className="text-sm">Premium Products</span>
+                <span className="text-sm">0999999999</span>
               </div>
             </div>
           </BlurPanel>
