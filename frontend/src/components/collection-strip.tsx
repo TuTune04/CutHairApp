@@ -119,9 +119,9 @@ export function CollectionStrip() {
   return (
     <section
       ref={sectionRef}
-      className="py-20 lg:py-32 overflow-hidden bg-neutral-950 text-white"
+      className="relative -mt-8 overflow-hidden bg-neutral-950 py-16 text-white lg:-mt-12 lg:py-24"
     >
-      <div className="mb-12">
+      <div className="mb-8 lg:mb-10">
         <Reveal>
           <div className="container-custom text-center">
             <p className="text-xs uppercase tracking-[0.35em] text-neutral-500 mb-3">

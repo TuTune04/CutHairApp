@@ -16,8 +16,9 @@ export function HeroSection() {
     offset: ["start start", "end start"],
   })
 
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1.05, 0.95])
-  const imageY = useTransform(scrollYProgress, [0, 1], [0, -50])
+  // Keep enough background coverage while parallaxing to avoid visible gaps
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1.1, 1.02])
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, -30])
   const contentY = useTransform(scrollYProgress, [0, 1], [0, 100])
   const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
@@ -45,7 +46,7 @@ export function HeroSection() {
 
   return (
     <>
-      <section ref={containerRef} className="relative h-screen overflow-hidden">
+      <section ref={containerRef} className="relative h-screen overflow-hidden bg-black">
         {/* Background Image with Cinematic Effects */}
         <motion.div
           className="absolute inset-0"
@@ -96,7 +97,7 @@ export function HeroSection() {
 
         {/* Info Strip */}
         <motion.div
-          className="absolute bottom-0 left-0 right-0 z-20 flex justify-center"
+          className="absolute bottom-0 left-0 right-0 z-[999] flex justify-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.2, ease: [0.21, 0.47, 0.32, 0.98] }}
@@ -121,6 +122,10 @@ export function HeroSection() {
             </div>
           </BlurPanel>
         </motion.div>
+
+        {/* Soft transition into next section */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-24 bg-gradient-to-b from-transparent via-black/55 to-black md:h-32" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-16 backdrop-blur-[2px] md:h-20" />
       </section>
 
       <BookingModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} />

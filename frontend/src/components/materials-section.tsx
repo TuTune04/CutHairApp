@@ -146,7 +146,15 @@ export function MaterialsSection() {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black" id="materials">
+    <section
+      className={cn(
+        "relative overflow-hidden bg-black",
+        isMobile
+          ? "min-h-[100svh] pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+          : "flex min-h-screen items-center justify-center",
+      )}
+      id="materials"
+    >
       <div className="absolute inset-0 z-0">
         {materials.map((material) => (
           <motion.div
@@ -168,9 +176,14 @@ export function MaterialsSection() {
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-40 bg-gradient-to-b from-black via-black/70 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-24 bg-gradient-to-b from-black via-black/70 to-transparent md:h-40" />
 
-      <div className="absolute top-[120px] left-0 right-0 z-10">
+      <div
+        className={cn(
+          "z-10",
+          isMobile ? "relative px-4 pt-16" : "absolute left-0 right-0 top-[120px]"
+        )}
+      >
         <div className="container-custom text-white">
           <Reveal>
             <div>
@@ -200,18 +213,19 @@ export function MaterialsSection() {
       </div>
 
       {/* Featured Reel Video Section */}
-      <div 
+      <div
         ref={containerRef}
-        className={`absolute z-20 ${
-          isMobile ? "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" : "top-1/2 right-8 transform -translate-y-1/2"
-        }`}
+        className={cn(
+          "z-20",
+          isMobile ? "relative mx-auto mt-6 w-fit px-4" : "absolute right-8 top-1/2 -translate-y-1/2"
+        )}
       >
         <Reveal delay={0.4}>
           <motion.div
             className={`relative group cursor-pointer ${
               isMobile ? "w-64 h-80" : "w-80 h-96"
             }`}
-            whileHover={{ scale: 1.05 }}
+            whileHover={isMobile ? { scale: 1 } : { scale: 1.05 }}
             transition={{ duration: 0.3 }}
           >
             {/* Video Container */}
@@ -279,7 +293,10 @@ export function MaterialsSection() {
 
             {/* Floating Elements */}
             <motion.div
-              className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"
+              className={cn(
+                "absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center",
+                isMobile && "hidden",
+              )}
               animate={{ 
                 scale: [1, 1.2, 1],
                 rotate: [0, 10, -10, 0]
@@ -308,10 +325,17 @@ export function MaterialsSection() {
         </Reveal>
       </div>
 
-      <div className="absolute bottom-8 left-0 right-0 z-10">
+      <div
+        className={cn(
+          "z-10",
+          isMobile
+            ? "relative mt-8 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+            : "absolute bottom-8 left-0 right-0"
+        )}
+      >
         <div className="container-custom">
           <Reveal delay={0.1}>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className={cn("flex flex-wrap justify-center gap-3", isMobile && "gap-2")}>
               {materials.map((material) => (
                 <motion.button
                   key={material.id}
@@ -323,7 +347,7 @@ export function MaterialsSection() {
                       : "bg-white/20 text-white hover:bg-white/30",
                   )}
                   onClick={() => setActiveMaterial(material.id)}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={isMobile ? { scale: 1 } : { scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   {material.name}
