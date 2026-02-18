@@ -7,25 +7,25 @@ import { cn } from "@/src/lib/utils"
 
 const seasonalCards = [
   {
-    title: "Season 1",
+    title: "Xuân",
     subtitle: "Spring",
     description: "Spring is the season of new beginnings.",
     imageSrc: "/images/tocnu1.jpg",
   },
   {
-    title: "Season 2",
+    title: "Hạ",
     subtitle: "Summer",
     description: "Summer is the season of warmth.",
     imageSrc: "/images/tocnu2.jpg",
   },
   {
-    title: "Season 3",
+    title: "Thu",
     subtitle: "Fall",
     description: "Fall is the season of harvest.",
     imageSrc: "/images/tocnu3.jpg",
   },
   {
-    title: "Season 4",
+    title: "Đông",
     subtitle: "Winter",
     description: "Winter is the season of cold.",
     imageSrc: "/images/tocnu4.jpg",
@@ -41,12 +41,19 @@ export function SeasonalSection() {
 
   const seasonBackgroundClass =
     activeSeason === "Spring"
-      ? "from-rose-100/70 via-pink-100/40 to-emerald-100/40"
+      ? "from-rose-100/75 via-pink-100/45 to-fuchsia-200/25"
       : activeSeason === "Summer"
-        ? "from-amber-100/80 via-yellow-100/45 to-orange-100/40"
+        ? "from-amber-100/85 via-yellow-100/50 to-orange-200/30"
         : activeSeason === "Fall"
           ? "from-amber-900/55 via-orange-900/35 to-black"
           : "from-sky-950/80 via-blue-950/70 to-black"
+  const seasonBottomBlendClass =
+    activeSeason === "Spring"
+      ? "from-transparent via-rose-200/15 to-neutral-950/70"
+      : activeSeason === "Summer"
+        ? "from-transparent via-amber-200/20 to-neutral-950/70"
+        : "from-transparent via-black/70 to-black"
+  const seasonBottomBlendHeight = isLightSeason ? "h-56" : "h-40"
 
   const particles = useMemo(() => {
     return Array.from({ length: 18 }).map((_, index) => ({
@@ -232,8 +239,9 @@ export function SeasonalSection() {
       />
       <div
         className={cn(
-          "pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b",
-          isLightSeason ? "from-transparent via-black/35 to-black/70" : "from-transparent via-black/70 to-black",
+          "pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-b",
+          seasonBottomBlendHeight,
+          seasonBottomBlendClass,
         )}
       />
 

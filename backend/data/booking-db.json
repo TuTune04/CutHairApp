@@ -1,0 +1,165 @@
+{
+  "services": [
+    {
+      "id": "cut-men",
+      "name": "Cat, xa toc Nam",
+      "category": "Dich vu le",
+      "priceText": "40k",
+      "basePriceAmount": 40000,
+      "defaultDurationMinutes": 45
+    },
+    {
+      "id": "cut-women",
+      "name": "Cat, xa toc Nu",
+      "category": "Dich vu le",
+      "priceText": "100k",
+      "basePriceAmount": 100000,
+      "defaultDurationMinutes": 60
+    },
+    {
+      "id": "shampoo",
+      "name": "Goi Nam/Nu",
+      "category": "Dich vu le",
+      "priceText": "40k",
+      "basePriceAmount": 40000,
+      "defaultDurationMinutes": 30
+    },
+    {
+      "id": "style-men",
+      "name": "Tao kieu Nam",
+      "category": "Dich vu le",
+      "priceText": "20k",
+      "basePriceAmount": 20000,
+      "defaultDurationMinutes": 30
+    },
+    {
+      "id": "style-women",
+      "name": "Tao kieu Nu",
+      "category": "Dich vu le",
+      "priceText": "40k",
+      "basePriceAmount": 40000,
+      "defaultDurationMinutes": 45
+    },
+    {
+      "id": "color-men",
+      "name": "Nhuom Nam",
+      "category": "Dich vu le",
+      "priceText": "150k",
+      "basePriceAmount": 150000,
+      "defaultDurationMinutes": 90
+    },
+    {
+      "id": "perm-men",
+      "name": "Uon Nam",
+      "category": "Dich vu le",
+      "priceText": "250k",
+      "basePriceAmount": 250000,
+      "defaultDurationMinutes": 90
+    },
+    {
+      "id": "chem-color",
+      "name": "Nhuom",
+      "category": "Hoa chat",
+      "priceText": "400k+",
+      "basePriceAmount": 400000,
+      "defaultDurationMinutes": 120
+    },
+    {
+      "id": "chem-straighten",
+      "name": "Duoi / Ep",
+      "category": "Hoa chat",
+      "priceText": "500k+",
+      "basePriceAmount": 500000,
+      "defaultDurationMinutes": 120
+    },
+    {
+      "id": "chem-curl",
+      "name": "Uon",
+      "category": "Hoa chat",
+      "priceText": "600k+",
+      "basePriceAmount": 600000,
+      "defaultDurationMinutes": 120
+    },
+    {
+      "id": "chem-keratin",
+      "name": "Phuc hoi Keratin",
+      "category": "Hoa chat",
+      "priceText": "600k+",
+      "basePriceAmount": 600000,
+      "defaultDurationMinutes": 90
+    },
+    {
+      "id": "collagen",
+      "name": "Hap, phuc hoi Collagen",
+      "category": "Phuc hoi",
+      "priceText": "250k",
+      "basePriceAmount": 250000,
+      "defaultDurationMinutes": 60
+    }
+  ],
+  "appointments": [
+    {
+      "id": "seed-appointment-1",
+      "customerName": "Nguyen Van An",
+      "phoneNumber": "0901234567",
+      "serviceName": "Cat, xa toc Nam",
+      "date": "2026-02-17",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "source": "app",
+      "revenueAmount": 40000,
+      "notes": "Khach quen",
+      "createdAt": "2026-02-16T00:00:00.000Z"
+    },
+    {
+      "id": "seed-appointment-2",
+      "customerName": "Tran Thi Hoa",
+      "phoneNumber": "0912345678",
+      "serviceName": "Phuc hoi Keratin",
+      "date": "2026-02-17",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "source": "app",
+      "revenueAmount": 600000,
+      "createdAt": "2026-02-16T00:10:00.000Z"
+    },
+    {
+      "id": "a78b833e-4dc2-48ba-97a4-f8c923731671",
+      "customerName": "tu",
+      "phoneNumber": "0987654321",
+      "serviceName": "Cat, xa toc Nu",
+      "date": "2026-02-17",
+      "startTime": "10:34",
+      "endTime": "11:34",
+      "source": "app",
+      "revenueAmount": 100000,
+      "createdAt": "2026-02-16T11:34:43.011Z"
+    },
+    {
+      "id": "50f4f639-dd3b-4b48-a768-ef8568317082",
+      "customerName": "tu",
+      "phoneNumber": "0987667712",
+      "serviceName": "Cat, xa toc Nam",
+      "date": "2026-02-26",
+      "startTime": "12:37",
+      "endTime": "13:22",
+      "source": "app",
+      "revenueAmount": 40000,
+      "notes": "cắt đẹp",
+      "createdAt": "2026-02-16T13:36:26.296Z"
+    },
+    {
+      "id": "5e0b656d-c8e2-4be3-8be8-ab3db2d00394",
+      "customerName": "hai",
+      "phoneNumber": "0987667712",
+      "serviceName": "Cat, xa toc Nam",
+      "date": "2026-02-19",
+      "startTime": "09:00",
+      "endTime": "09:45",
+      "source": "app",
+      "revenueAmount": 40000,
+      "notes": "d",
+      "createdAt": "2026-02-18T05:11:13.526Z"
+    }
+  ]
+}

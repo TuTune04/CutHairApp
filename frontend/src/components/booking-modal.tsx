@@ -2,12 +2,13 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Calendar, Clock, User, Mail, Phone, MessageSquare, Sparkles } from "lucide-react"
 import Image from "next/image"
 import { hairstylesByGender } from "@/src/data/hairstyles"
 import type { HairGender, HairStyleOption } from "@/src/types/catalog"
+import { createAppointment, getServices, ServiceItem } from "@/src/lib/booking-api"
 
 interface BookingModalProps {
   isOpen: boolean
@@ -15,15 +16,22 @@ interface BookingModalProps {
 }
 
 export function BookingModal({ isOpen, onClose }: BookingModalProps) {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"
   const [gender, setGender] = useState<HairGender | null>(null)
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
   const [previewImage, setPreviewImage] = useState<string>("")
+  const [services, setServices] = useState<ServiceItem[]>([])
+  const [serviceLoadError, setServiceLoadError] = useState("")
+  const [submitError, setSubmitError] = useState("")
+  const [submitSuccess, setSubmitSuccess] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     date: "",
     time: "",
+    serviceName: "",
     notes: "",
   })
 
@@ -31,6 +39,42 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const maleHairstyles = hairstylesByGender.male
   const femaleHairstyles = hairstylesByGender.female
   const selectedHairstyle = hairstyles.find((s) => s.id === selectedStyle)
+  const selectedService = useMemo(
+    () => services.find((service) => service.name === formData.serviceName),
+    [services, formData.serviceName]
+  )
+
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    let active = true
+    setServiceLoadError("")
+
+    getServices(apiBaseUrl)
+      .then((items) => {
+        if (!active) {
+          return
+        }
+        setServices(items)
+        setFormData((previous) => ({
+          ...previous,
+          serviceName: previous.serviceName || items[0]?.name || "",
+        }))
+      })
+      .catch((error: unknown) => {
+        if (!active) {
+          return
+        }
+        const message = error instanceof Error ? error.message : "Khong tai duoc danh sach dich vu"
+        setServiceLoadError(message)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [isOpen, apiBaseUrl])
 
   const handleStyleHover = (style: HairStyleOption) => {
     setSelectedStyle(style.id)
@@ -47,10 +91,44 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     // Future deepface integration will go here
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Booking submitted:", { gender, selectedStyle, ...formData })
-    onClose()
+    setSubmitError("")
+    setSubmitSuccess("")
+
+    if (!formData.name.trim() || !formData.phone.trim() || !formData.date || !formData.time || !formData.serviceName) {
+      setSubmitError("Vui long nhap day du ten, so dien thoai, dich vu va thoi gian dat lich")
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await createAppointment(apiBaseUrl, {
+        customerName: formData.name.trim(),
+        phoneNumber: formData.phone.trim(),
+        serviceName: formData.serviceName,
+        date: formData.date,
+        startTime: formData.time,
+        durationMinutes: selectedService?.defaultDurationMinutes ?? 60,
+        notes: formData.notes.trim() || undefined,
+      })
+
+      setSubmitSuccess("Dat lich thanh cong. Chung toi da luu lich su va dich vu ban da su dung.")
+      setFormData((previous) => ({
+        ...previous,
+        name: "",
+        email: "",
+        phone: "",
+        date: "",
+        time: "",
+        notes: "",
+      }))
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Khong the dat lich luc nay"
+      setSubmitError(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -261,11 +339,10 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                           </div>
                           <input
                             type="email"
-                            required
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:border-black focus:outline-none transition-colors text-sm placeholder-gray-400"
-                            placeholder="Email"
+                            placeholder="Email (khong bat buoc)"
                           />
                         </div>
 
@@ -307,10 +384,41 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                                 required
                                 value={formData.time}
                                 onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                                step={1800}
                                 className="w-full min-h-[42px] rounded-lg border border-gray-200 py-2 pl-10 pr-2 text-[16px] sm:text-sm focus:border-black focus:outline-none transition-colors"
                                 />
                             </div>
                         </div>
+
+                        {/* Service */}
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <div>
+                            <p className="mb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">Ten dich vu</p>
+                            <select
+                              required
+                              value={formData.serviceName}
+                              onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
+                              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none transition-colors"
+                            >
+                              <option value="">Chon dich vu</option>
+                              {services.map((service) => (
+                                <option key={service.id} value={service.name}>
+                                  {service.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <p className="mb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">Gia dich vu</p>
+                            <span className="flex min-h-[42px] items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm font-medium text-gray-800">
+                              {selectedService?.priceText ?? "--"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {serviceLoadError ? <p className="text-xs text-red-600">{serviceLoadError}</p> : null}
+                        {submitError ? <p className="text-xs text-red-600">{submitError}</p> : null}
+                        {submitSuccess ? <p className="text-xs text-emerald-700">{submitSuccess}</p> : null}
 
 
                         {/* Notes */}
@@ -357,9 +465,10 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     <button
                       type="submit"
                       form="booking-form"
-                      className="rounded-lg bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-900"
+                      disabled={isSubmitting}
+                      className="rounded-lg bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      Đặt lịch
+                      {isSubmitting ? "Dang dat..." : "Dat lich"}
                     </button>
                   </div>
                 </div>
