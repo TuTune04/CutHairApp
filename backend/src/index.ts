@@ -38,7 +38,7 @@ const createAppointmentSchema = z.object({
   serviceName: z.string().trim().min(2, "serviceName is required"),
   date: z.string().regex(dateRegex, "date must be YYYY-MM-DD"),
   startTime: z.string().regex(timeRegex, "startTime must be HH:MM"),
-  durationMinutes: z.number().int().positive().max(240).optional(),
+  durationMinutes: z.number().int().positive().max(480).optional(),
   source: z.enum(["app", "external"]).optional(),
   revenueAmount: z.number().int().nonnegative().optional(),
   notes: z.string().trim().max(300).optional()

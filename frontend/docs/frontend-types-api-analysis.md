@@ -46,12 +46,15 @@ Nguon:
 API da duoc wrap:
 - `getAppointments(baseUrl)` -> `GET /appointments`
 - `getCustomers(baseUrl)` -> `GET /customers`
-- `getAvailability(baseUrl, date, durationMinutes)` -> `GET /availability`
+- `getServices(baseUrl)` -> `GET /services` (gia lay tu backend seed theo `giatoc.md`)
 - `createAppointment(baseUrl, payload)` -> `POST /appointments`
+- `createExternalRevenue(baseUrl, payload)` -> `POST /external-revenues`
+- `getDailyRevenue(baseUrl, from, to)` -> `GET /revenues/daily`
+- `getMonthlyRevenue(baseUrl, year)` -> `GET /revenues/monthly`
 
 Phan xu ly loi:
 - Da co `readJsonResponse<T>()` de doc `message` tu backend.
-- Chua co ma loi domain (`errorCode`) de frontend xu ly tinh huong chi tiet (trung lich, sai format, ngoai gio).
+- Backend da bo sung `errorCode` + `error` envelope de frontend xu ly loi domain.
 
 ## 3) Bo type de xuat chuan hoa frontend
 
@@ -131,13 +134,13 @@ export interface AvailabilityQuery {
    - Muc dich: Tong hop nguoi da dat lich.
    - Frontend dung: bang thong ke khach hang.
 
-4. `GET /availability?date=YYYY-MM-DD&durationMinutes=60`
-   - Muc dich: lay khung gio trong.
-   - Frontend dung: widget chon gio trong.
-
-5. `POST /appointments`
+4. `POST /appointments`
    - Muc dich: tao lich hen moi.
    - Frontend dung: form tao booking.
+
+5. `POST /external-revenues`
+   - Muc dich: ghi nhan don ngoai trong ngay (co the gom nhieu dich vu).
+   - Frontend dung: popup doanh thu nhanh.
 
 ### Giai doan 2 - Day du CRUD cho admin
 
@@ -158,17 +161,21 @@ export interface AvailabilityQuery {
 10. `GET /services`
    - Chuyen du lieu dich vu dang hard-code sang backend.
 
-11. `GET /hairstyles?gender=male|female`
-   - Chuyen bo du lieu goi y kieu toc sang backend.
+11. `GET /catalog/categories`
+   - Lay danh muc dich vu de loc tren UI.
 
-12. `POST /newsletter/subscribe`
+12. `GET /catalog/services`
+   - Lay catalog dich vu theo category.
+
+13. `POST /newsletter/subscribe`
    - Luu dang ky nhan tin thay vi local state.
 
 ## 5) Quy uoc contract de frontend de dung lau dai
 
 1. Dung response envelope thong nhat:
-   - Success: `{ data, message? }`
-   - Error: `{ message, errorCode?, details? }`
+   - Success: `{ success: true, data, meta? }`
+   - Error: `{ success: false, error: { code, message, details? } }`
+   - Tuong thich tam thoi: payload loi van co `message` va `errorCode` de frontend cu khong vo.
 
 2. Chuan hoa format:
    - `date`: `YYYY-MM-DD`
@@ -181,8 +188,9 @@ export interface AvailabilityQuery {
 4. Bo sung ma loi domain:
    - `TIME_SLOT_UNAVAILABLE`
    - `OUTSIDE_WORKING_HOURS`
-   - `INVALID_DATE_FORMAT`
    - `VALIDATION_ERROR`
+   - `SERVICE_NOT_AVAILABLE`
+   - `NOT_FOUND`
 
 5. CORS va env:
    - Frontend can `NEXT_PUBLIC_API_URL`.
@@ -217,7 +225,7 @@ Trong do:
 - [ ] Them ham `pingHealth()` de check ket noi backend
 - [ ] Hien thi ro loi domain theo `errorCode` tren UI admin
 - [ ] Them API CRUD day du (`GET by id`, `PATCH`, `DELETE`)
-- [ ] Chuyen dan du lieu hard-code (`services`, `hairstyles`) sang API
+- [ ] Chuyen dan du lieu hard-code (`services`) sang API catalog
 
 ## 8) Ket luan ngan
 

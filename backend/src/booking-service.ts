@@ -148,8 +148,10 @@ export function updateAppointment(id: string, patch: UpdateAppointmentInput): Ap
     assertNoConflict(next.date, startMinutes, endMinutes, id);
     next.startTime = nextStart;
     next.endTime = formatMinutes(endMinutes);
-  } else if (patch.startTime !== undefined) {
-    next.startTime = patch.startTime;
+  } else {
+    // External revenue rows are bookkeeping entries, not scheduled slots.
+    next.startTime = "00:00";
+    next.endTime = "00:00";
   }
 
   db.appointments[index] = next;
