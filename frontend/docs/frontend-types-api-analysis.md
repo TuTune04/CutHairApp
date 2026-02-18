@@ -30,6 +30,12 @@ Nguon:
 - `frontend/src/lib/api-errors.ts`
 - `frontend/src/lib/notice.ts`
 - `frontend/src/components/common/inline-notice.tsx`
+- `frontend/src/lib/api/client.ts`
+- `frontend/src/lib/api/appointments.ts`
+- `frontend/src/lib/api/catalog.ts`
+- `frontend/src/lib/api/analytics.ts`
+- `frontend/src/features/booking/useBookingController.ts`
+- `frontend/src/features/admin/useAdminDashboardController.ts`
 
 Type da co:
 - `Appointment`
@@ -59,6 +65,7 @@ Phan xu ly loi:
 - Da tach rieng parser loi API trong `api-errors.ts` (`ApiRequestError`, `parseApiError`).
 - Da co lop notice dung chung trong `notice.ts` de map `error.code` -> thong diep UX.
 - Da co `InlineNotice` component de render thong bao dong nhat cho cac form.
+- Da co API client trung tam (`lib/api/client.ts`) va service modules theo domain.
 
 ## 3) He thong thong bao va xu ly loi tach biet
 
@@ -70,7 +77,17 @@ Cau truc moi:
 
 ```txt
 frontend/src/
+  features/
+    booking/
+      useBookingController.ts
+    admin/
+      useAdminDashboardController.ts
   lib/
+    api/
+      client.ts
+      appointments.ts
+      analytics.ts
+      catalog.ts
     booking-api.ts         # Goi API + throw ApiRequestError
     api-errors.ts          # Parse envelope loi
     notice.ts              # Mapping error code -> AppNotice
@@ -80,9 +97,11 @@ frontend/src/
 ```
 
 Luong xu ly:
-1. `booking-api.ts` goi `parseApiError(response)` va throw `ApiRequestError`.
-2. UI layer goi `buildApiErrorNotice(error)` de quy doi sang thong diep nguoi dung.
-3. Component dung `InlineNotice` de hien thi thong bao nhat quan.
+1. UI goi controller hook (`useBookingController`, `useAdminDashboardController`).
+2. Controller hook goi `booking-api.ts` (transport facade).
+3. `booking-api.ts` goi `lib/api/*` + `api/client.ts` de truy cap `/api/v1`.
+4. Loi API duoc parse qua `api-errors.ts`, map notice qua `notice.ts`.
+5. Component dung `InlineNotice` de hien thi thong bao nhat quan.
 
 Quy uoc mo rong:
 - Them ma loi backend moi: cap nhat map trong `notice.ts` (khong sua tung component).
@@ -257,6 +276,9 @@ Trong do:
 - [x] Tach parser loi API sang `src/lib/api-errors.ts`
 - [x] Tach mapping thong bao sang `src/lib/notice.ts`
 - [x] Tao component thong bao dung chung `src/components/common/inline-notice.tsx`
+- [x] Tao API client trung tam + tach module API theo domain (`src/lib/api/*`)
+- [x] Tach controller hook cho booking/admin (`src/features/*`)
+- [x] Migrate call API sang `/api/v1` thong qua client layer
 - [ ] Them ham `pingHealth()` de check ket noi backend
 - [ ] Hien thi ro loi domain theo `errorCode` tren UI admin
 - [ ] Them API CRUD day du (`GET by id`, `PATCH`, `DELETE`)

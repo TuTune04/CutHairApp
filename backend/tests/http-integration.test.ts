@@ -6,12 +6,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const tempDirectories: string[] = [];
 
-async function createIsolatedApp() {
+async function createIsolatedApp(options?: { openHour?: number; closeHour?: number }) {
   const tempDirectory = mkdtempSync(path.join(os.tmpdir(), "cut-hair-backend-test-"));
   tempDirectories.push(tempDirectory);
 
   process.env.BOOKING_DB_PATH = path.join(tempDirectory, "booking-db.json");
   process.env.NODE_ENV = "test";
+  if (options?.openHour !== undefined) {
+    process.env.SHOP_OPEN_HOUR = String(options.openHour);
+  }
+  if (options?.closeHour !== undefined) {
+    process.env.SHOP_CLOSE_HOUR = String(options.closeHour);
+  }
   vi.resetModules();
 
   const { app } = await import("../src/index");
@@ -20,12 +26,14 @@ async function createIsolatedApp() {
 
 afterEach(() => {
   delete process.env.BOOKING_DB_PATH;
+  delete process.env.SHOP_OPEN_HOUR;
+  delete process.env.SHOP_CLOSE_HOUR;
 });
 
 describe("http integration (real service + real test db)", () => {
   it("rejects non-existent calendar date for create appointment", async () => {
     const app = await createIsolatedApp();
-    const response = await request(app).post("/appointments").send({
+    const response = await request(app).post("/api/v1/appointments").send({
       customerName: "Le Minh",
       phoneNumber: "0901234567",
       serviceName: "Cat, xa toc Nam",
@@ -42,7 +50,7 @@ describe("http integration (real service + real test db)", () => {
   it("runs service CRUD and reflects in catalog APIs", async () => {
     const app = await createIsolatedApp();
 
-    const createResponse = await request(app).post("/catalog/services").send({
+    const createResponse = await request(app).post("/api/v1/catalog/services").send({
       id: "test-service-1",
       name: "Test Service 1",
       category: "Dich vu le",
@@ -53,18 +61,18 @@ describe("http integration (real service + real test db)", () => {
     expect(createResponse.status).toBe(201);
     expect(createResponse.body.success).toBe(true);
 
-    const listResponse = await request(app).get("/catalog/services");
+    const listResponse = await request(app).get("/api/v1/catalog/services");
     expect(listResponse.status).toBe(200);
     expect(listResponse.body.data.some((item: { id: string }) => item.id === "test-service-1")).toBe(true);
 
-    const patchResponse = await request(app).patch("/catalog/services/test-service-1").send({
+    const patchResponse = await request(app).patch("/api/v1/catalog/services/test-service-1").send({
       priceText: "150k",
       basePriceAmount: 150000
     });
     expect(patchResponse.status).toBe(200);
     expect(patchResponse.body.data.basePriceAmount).toBe(150000);
 
-    const deleteResponse = await request(app).delete("/catalog/services/test-service-1");
+    const deleteResponse = await request(app).delete("/api/v1/catalog/services/test-service-1");
     expect(deleteResponse.status).toBe(200);
     expect(deleteResponse.body.success).toBe(true);
   });
@@ -72,7 +80,7 @@ describe("http integration (real service + real test db)", () => {
   it("updates appointment source app <-> external correctly", async () => {
     const app = await createIsolatedApp();
 
-    const createdAppointment = await request(app).post("/appointments").send({
+    const createdAppointment = await request(app).post("/api/v1/appointments").send({
       customerName: "Le Minh",
       phoneNumber: "0901234567",
       serviceName: "Cat, xa toc Nam",
@@ -83,7 +91,7 @@ describe("http integration (real service + real test db)", () => {
     expect(createdAppointment.status).toBe(201);
     const appointmentId = createdAppointment.body.data.id as string;
 
-    const switchedToExternal = await request(app).patch(`/appointments/${appointmentId}`).send({
+    const switchedToExternal = await request(app).patch(`/api/v1/appointments/${appointmentId}`).send({
       source: "external"
     });
     expect(switchedToExternal.status).toBe(200);
@@ -91,7 +99,7 @@ describe("http integration (real service + real test db)", () => {
     expect(switchedToExternal.body.data.startTime).toBe("00:00");
     expect(switchedToExternal.body.data.endTime).toBe("00:00");
 
-    const switchedBackToApp = await request(app).patch(`/appointments/${appointmentId}`).send({
+    const switchedBackToApp = await request(app).patch(`/api/v1/appointments/${appointmentId}`).send({
       source: "app",
       startTime: "11:00",
       durationMinutes: 45
@@ -105,7 +113,7 @@ describe("http integration (real service + real test db)", () => {
   it("returns availability and revenue summaries after creating records", async () => {
     const app = await createIsolatedApp();
 
-    const createAppOrder = await request(app).post("/appointments").send({
+    const createAppOrder = await request(app).post("/api/v1/appointments").send({
       customerName: "Le Minh",
       phoneNumber: "0901234567",
       serviceName: "Cat, xa toc Nam",
@@ -115,22 +123,38 @@ describe("http integration (real service + real test db)", () => {
     });
     expect(createAppOrder.status).toBe(201);
 
-    const createExternalOrder = await request(app).post("/external-revenues").send({
+    const createExternalOrder = await request(app).post("/api/v1/external-revenues").send({
       phoneNumber: "0901234567",
       date: "2026-02-22",
       serviceNames: ["Cat, xa toc Nam", "Goi Nam/Nu"]
     });
     expect(createExternalOrder.status).toBe(201);
 
-    const availabilityResponse = await request(app).get("/availability?date=2026-02-22&durationMinutes=45");
+    const availabilityResponse = await request(app).get("/api/v1/availability?date=2026-02-22&durationMinutes=45");
     expect(availabilityResponse.status).toBe(200);
     expect(Array.isArray(availabilityResponse.body.data.freeSlots)).toBe(true);
     expect(availabilityResponse.body.data.freeSlots.includes("09:00")).toBe(false);
 
-    const dailyRevenue = await request(app).get("/revenues/daily?from=2026-02-22&to=2026-02-22");
+    const dailyRevenue = await request(app).get("/api/v1/revenues/daily?from=2026-02-22&to=2026-02-22");
     expect(dailyRevenue.status).toBe(200);
     expect(dailyRevenue.body.data[0].date).toBe("2026-02-22");
     expect(dailyRevenue.body.data[0].totalRevenue).toBeGreaterThan(0);
+  });
+
+  it("respects working-hour configuration from env", async () => {
+    const app = await createIsolatedApp({ openHour: 10, closeHour: 17 });
+    const response = await request(app).post("/api/v1/appointments").send({
+      customerName: "Le Minh",
+      phoneNumber: "0901234567",
+      serviceName: "Cat, xa toc Nam",
+      date: "2026-02-23",
+      startTime: "09:30",
+      durationMinutes: 45
+    });
+
+    expect(response.status).toBe(409);
+    expect(response.body.success).toBe(false);
+    expect(response.body.error.code).toBe("OUTSIDE_WORKING_HOURS");
   });
 });
 

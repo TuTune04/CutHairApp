@@ -62,17 +62,23 @@ Tai lieu nay tong hop cac van de quan trong theo thu tu uu tien de fix, dong tho
      - Test semantic date validation va source transition trong integration suite.
    - File lien quan: `backend/tests/http-integration.test.ts`.
 
-9. **[TODO] Them quality gate trong CI**
-   - De xuat: bat buoc pass `npm run test:run` + `npm run build` truoc merge.
+9. **[DONE] Them quality gate trong CI**
+   - Da fix: tao workflow `.github/workflows/quality-gate.yml`.
+   - Quality gate:
+     - Backend: `npm run build` + `npm run test:run`.
+     - Frontend: `npm run build` + `npm run test:run` + `npm run lint`.
 
 ## P3 - Van hanh va mo rong
 
-10. **[TODO] Cau hinh hoa gio lam viec**
-    - Hien dang hard-code `09:00 - 18:00`.
-    - De xuat: dua ve env/config.
+10. **[DONE] Cau hinh hoa gio lam viec**
+    - Da fix: dua `SHOP_OPEN_HOUR`/`SHOP_CLOSE_HOUR` vao `backend/src/config.ts`.
+    - Co validation env de tranh config loi.
+    - Cap nhat `.env.example` va README.
 
-11. **[TODO] API versioning**
-    - De xuat chuyen sang `/api/v1/...` de de dang nang cap contract.
+11. **[DONE] API versioning**
+    - Da fix: publish route versioned `/api/v1/*`.
+    - Van giu route cu de migration an toan, khong gay vo frontend hien tai.
+    - File lien quan: `backend/src/index.ts`.
 
 ---
 

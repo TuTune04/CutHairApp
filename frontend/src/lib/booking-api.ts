@@ -1,4 +1,7 @@
-import { parseApiError } from "./api-errors"
+import { fetchAppointments, fetchAvailability, postAppointment, postExternalRevenue } from "./api/appointments"
+import { fetchCustomers, fetchDailyRevenue, fetchMonthlyRevenue } from "./api/analytics"
+import { fetchServices } from "./api/catalog"
+import { createApiClient } from "./api/client"
 
 export interface Appointment {
   id: string
@@ -78,30 +81,19 @@ export interface MonthlyRevenueItem {
   totalAppointments: number
 }
 
-async function readJsonResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    throw await parseApiError(response)
-  }
-
-  return response.json() as Promise<T>
-}
-
 export async function getAppointments(baseUrl: string): Promise<Appointment[]> {
-  const response = await fetch(`${baseUrl}/appointments`, { cache: "no-store" })
-  const payload = await readJsonResponse<{ data: Appointment[] }>(response)
-  return payload.data
+  const client = createApiClient(baseUrl)
+  return fetchAppointments(client)
 }
 
 export async function getCustomers(baseUrl: string): Promise<CustomerSummary[]> {
-  const response = await fetch(`${baseUrl}/customers`, { cache: "no-store" })
-  const payload = await readJsonResponse<{ data: CustomerSummary[] }>(response)
-  return payload.data
+  const client = createApiClient(baseUrl)
+  return fetchCustomers(client)
 }
 
 export async function getServices(baseUrl: string): Promise<ServiceItem[]> {
-  const response = await fetch(`${baseUrl}/services`, { cache: "no-store" })
-  const payload = await readJsonResponse<{ data: ServiceItem[] }>(response)
-  return payload.data
+  const client = createApiClient(baseUrl)
+  return fetchServices(client)
 }
 
 export async function getAvailability(
@@ -109,44 +101,21 @@ export async function getAvailability(
   date: string,
   durationMinutes: number
 ): Promise<string[]> {
-  const searchParams = new URLSearchParams({
-    date,
-    durationMinutes: String(durationMinutes),
-  })
-  const response = await fetch(`${baseUrl}/availability?${searchParams.toString()}`, {
-    cache: "no-store",
-  })
-  const payload = await readJsonResponse<{ freeSlots: string[] }>(response)
-  return payload.freeSlots
+  const client = createApiClient(baseUrl)
+  return fetchAvailability(client, date, durationMinutes)
 }
 
 export async function createAppointment(baseUrl: string, payload: CreateAppointmentPayload): Promise<Appointment> {
-  const response = await fetch(`${baseUrl}/appointments`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  })
-
-  const result = await readJsonResponse<{ data: Appointment }>(response)
-  return result.data
+  const client = createApiClient(baseUrl)
+  return postAppointment(client, payload)
 }
 
 export async function createExternalRevenue(
   baseUrl: string,
   payload: CreateExternalRevenuePayload
 ): Promise<Appointment> {
-  const response = await fetch(`${baseUrl}/external-revenues`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  })
-
-  const result = await readJsonResponse<{ data: Appointment }>(response)
-  return result.data
+  const client = createApiClient(baseUrl)
+  return postExternalRevenue(client, payload)
 }
 
 export async function getDailyRevenue(
@@ -154,26 +123,11 @@ export async function getDailyRevenue(
   fromDate?: string,
   toDate?: string
 ): Promise<DailyRevenueItem[]> {
-  const searchParams = new URLSearchParams()
-  if (fromDate) {
-    searchParams.set("from", fromDate)
-  }
-  if (toDate) {
-    searchParams.set("to", toDate)
-  }
-  const query = searchParams.toString()
-  const response = await fetch(`${baseUrl}/revenues/daily${query ? `?${query}` : ""}`, { cache: "no-store" })
-  const payload = await readJsonResponse<{ data: DailyRevenueItem[] }>(response)
-  return payload.data
+  const client = createApiClient(baseUrl)
+  return fetchDailyRevenue(client, fromDate, toDate)
 }
 
 export async function getMonthlyRevenue(baseUrl: string, year?: string): Promise<MonthlyRevenueItem[]> {
-  const searchParams = new URLSearchParams()
-  if (year) {
-    searchParams.set("year", year)
-  }
-  const query = searchParams.toString()
-  const response = await fetch(`${baseUrl}/revenues/monthly${query ? `?${query}` : ""}`, { cache: "no-store" })
-  const payload = await readJsonResponse<{ data: MonthlyRevenueItem[] }>(response)
-  return payload.data
+  const client = createApiClient(baseUrl)
+  return fetchMonthlyRevenue(client, year)
 }

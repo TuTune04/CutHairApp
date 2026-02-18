@@ -8,9 +8,7 @@ import { X, Calendar, Clock, User, Mail, Phone, MessageSquare, Sparkles } from "
 import Image from "next/image"
 import { hairstylesByGender } from "@/src/data/hairstyles"
 import type { HairGender, HairStyleOption } from "@/src/types/catalog"
-import { createAppointment, getServices, ServiceItem } from "@/src/lib/booking-api"
-import type { AppNotice } from "@/src/lib/notice"
-import { buildApiErrorNotice, buildSuccessNotice } from "@/src/lib/notice"
+import { useBookingController } from "@/src/features/booking/useBookingController"
 import { InlineNotice } from "@/src/components/common/inline-notice"
 
 interface BookingModalProps {
@@ -23,9 +21,10 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const [gender, setGender] = useState<HairGender | null>(null)
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
   const [previewImage, setPreviewImage] = useState<string>("")
-  const [services, setServices] = useState<ServiceItem[]>([])
-  const [bookingNotice, setBookingNotice] = useState<AppNotice | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { services, notice: bookingNotice, setNotice: setBookingNotice, isSubmitting, submitBooking } = useBookingController(
+    apiBaseUrl,
+    isOpen
+  )
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -46,39 +45,12 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   )
 
   useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-
-    let active = true
-    setBookingNotice(null)
-
-    getServices(apiBaseUrl)
-      .then((items) => {
-        if (!active) {
-          return
-        }
-        setServices(items)
-        setFormData((previous) => ({
-          ...previous,
-          serviceName: previous.serviceName || items[0]?.name || "",
-        }))
-      })
-      .catch((error: unknown) => {
-        if (!active) {
-          return
-        }
-        setBookingNotice(
-          buildApiErrorNotice(error, {
-            fallbackTitle: "Khong tai duoc danh sach dich vu"
-          })
-        )
-      })
-
-    return () => {
-      active = false
-    }
-  }, [isOpen, apiBaseUrl])
+    if (!isOpen || services.length === 0) return
+    setFormData((previous) => ({
+      ...previous,
+      serviceName: previous.serviceName || services[0].name
+    }))
+  }, [isOpen, services])
 
   const handleStyleHover = (style: HairStyleOption) => {
     setSelectedStyle(style.id)
@@ -108,9 +80,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
       return
     }
 
-    setIsSubmitting(true)
-    try {
-      await createAppointment(apiBaseUrl, {
+    const isSuccess = await submitBooking({
         customerName: formData.name.trim(),
         phoneNumber: formData.phone.trim(),
         serviceName: formData.serviceName,
@@ -119,8 +89,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         durationMinutes: selectedService?.defaultDurationMinutes ?? 60,
         notes: formData.notes.trim() || undefined,
       })
-
-      setBookingNotice(buildSuccessNotice("Dat lich thanh cong", `Hen gap ban luc ${formData.time}, ngay ${formData.date}.`))
+    if (isSuccess) {
       setFormData((previous) => ({
         ...previous,
         name: "",
@@ -130,15 +99,6 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         time: "",
         notes: "",
       }))
-    } catch (error: unknown) {
-      setBookingNotice(
-        buildApiErrorNotice(error, {
-          validationTitle: "Thong tin dat lich chua dung",
-          fallbackTitle: "Dat lich that bai"
-        })
-      )
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
