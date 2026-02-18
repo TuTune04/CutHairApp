@@ -46,6 +46,10 @@ Tat ca API tra ve envelope:
 - `PATCH /appointments/:id`
 - `DELETE /appointments/:id`
 
+Rule cap nhat `source`:
+- Neu `source = "external"`: he thong se force `startTime = "00:00"` va `endTime = "00:00"` (ban ghi doanh thu, khong phai khung gio lich hen).
+- Neu chuyen nguoc lai `source = "app"`: can gui `startTime` (va co the gui `durationMinutes`) de he thong tinh lai `endTime` va check trung lich.
+
 ### 3) Don ngoai
 
 - `POST /external-revenues`

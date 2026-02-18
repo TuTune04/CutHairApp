@@ -32,11 +32,30 @@ app.use(express.json());
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
+function isValidDateString(value: string): boolean {
+  if (!dateRegex.test(value)) {
+    return false;
+  }
+  const [yearText, monthText, dayText] = value.split("-");
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() + 1 === month &&
+    date.getUTCDate() === day
+  );
+}
+
 const createAppointmentSchema = z.object({
   customerName: z.string().trim().min(2, "customerName is required"),
   phoneNumber: z.string().trim().min(8, "phoneNumber is required"),
   serviceName: z.string().trim().min(2, "serviceName is required"),
-  date: z.string().regex(dateRegex, "date must be YYYY-MM-DD"),
+  date: z
+    .string()
+    .regex(dateRegex, "date must be YYYY-MM-DD")
+    .refine(isValidDateString, "date is not a valid calendar day"),
   startTime: z.string().regex(timeRegex, "startTime must be HH:MM"),
   durationMinutes: z.number().int().positive().max(480).optional(),
   source: z.enum(["app", "external"]).optional(),
@@ -49,7 +68,10 @@ const updateAppointmentSchema = createAppointmentSchema.partial();
 const createExternalRevenueSchema = z.object({
   customerName: z.string().trim().optional(),
   phoneNumber: z.string().trim().min(8, "phoneNumber is required"),
-  date: z.string().regex(dateRegex, "date must be YYYY-MM-DD"),
+  date: z
+    .string()
+    .regex(dateRegex, "date must be YYYY-MM-DD")
+    .refine(isValidDateString, "date is not a valid calendar day"),
   serviceNames: z.array(z.string().trim().min(2)).min(1, "at least one service is required"),
   totalRevenue: z.number().int().nonnegative().optional(),
   notes: z.string().trim().max(300).optional()
@@ -171,10 +193,10 @@ app.get("/revenues/daily", (req, res) => {
   const fromDate = req.query.from ? String(req.query.from) : undefined;
   const toDate = req.query.to ? String(req.query.to) : undefined;
 
-  if (fromDate && !dateRegex.test(fromDate)) {
+  if (fromDate && !isValidDateString(fromDate)) {
     return fail(res, 400, "VALIDATION_ERROR", "from must be YYYY-MM-DD");
   }
-  if (toDate && !dateRegex.test(toDate)) {
+  if (toDate && !isValidDateString(toDate)) {
     return fail(res, 400, "VALIDATION_ERROR", "to must be YYYY-MM-DD");
   }
 
@@ -195,7 +217,7 @@ app.get("/availability", (req, res) => {
   const durationRaw = req.query.durationMinutes;
   const durationMinutes = durationRaw ? Number(durationRaw) : undefined;
 
-  if (!dateRegex.test(date)) {
+  if (!isValidDateString(date)) {
     return fail(res, 400, "VALIDATION_ERROR", "date query is required in format YYYY-MM-DD");
   }
 
@@ -281,7 +303,11 @@ app.use((_req, res) => {
   return fail(res, 404, "NOT_FOUND", "Route not found");
 });
 
-app.listen(port, () => {
-  // Keep startup log minimal for local development.
-  console.log(`Backend is running at http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    // Keep startup log minimal for local development.
+    console.log(`Backend is running at http://localhost:${port}`);
+  });
+}
+
+export { app };

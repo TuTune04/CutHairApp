@@ -1,10 +1,107 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, statSync, renameSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { Appointment, BookingDatabase, ServiceItem } from "./types/index";
 
-const dataDirectory = path.resolve(process.cwd(), "data");
-const databasePath = path.join(dataDirectory, "booking-db.json");
+const LOCK_WAIT_TIMEOUT_MS = 2_000;
+const LOCK_RETRY_INTERVAL_MS = 25;
+const STALE_LOCK_MS = 30_000;
+
+function getDatabasePath(): string {
+  const configured = process.env.BOOKING_DB_PATH?.trim();
+  if (configured) {
+    return path.resolve(configured);
+  }
+  return path.resolve(process.cwd(), "data", "booking-db.json");
+}
+
+function getDatabasePaths(): {
+  dataDirectory: string;
+  databasePath: string;
+  lockDirectoryPath: string;
+  atomicTempPath: string;
+} {
+  const databasePath = getDatabasePath();
+  const dataDirectory = path.dirname(databasePath);
+  return {
+    dataDirectory,
+    databasePath,
+    lockDirectoryPath: `${databasePath}.lock`,
+    atomicTempPath: `${databasePath}.tmp`
+  };
+}
+
+function sleepMs(ms: number): void {
+  // Blocking sleep is acceptable here because this backend intentionally uses sync fs for local single-node use.
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function tryCleanupStaleLock(): void {
+  const { lockDirectoryPath } = getDatabasePaths();
+  if (!existsSync(lockDirectoryPath)) {
+    return;
+  }
+  try {
+    const lockStat = statSync(lockDirectoryPath);
+    const lockAge = Date.now() - lockStat.mtimeMs;
+    if (lockAge > STALE_LOCK_MS) {
+      rmSync(lockDirectoryPath, { recursive: true, force: true });
+    }
+  } catch {
+    rmSync(lockDirectoryPath, { recursive: true, force: true });
+  }
+}
+
+function acquireWriteLockOrThrow(): void {
+  const { lockDirectoryPath } = getDatabasePaths();
+  const start = Date.now();
+  while (true) {
+    try {
+      mkdirSync(lockDirectoryPath);
+      return;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== "EEXIST") {
+        throw error;
+      }
+      tryCleanupStaleLock();
+      if (!existsSync(lockDirectoryPath)) {
+        continue;
+      }
+      if (Date.now() - start > LOCK_WAIT_TIMEOUT_MS) {
+        throw new Error("Database write lock timeout");
+      }
+      sleepMs(LOCK_RETRY_INTERVAL_MS);
+    }
+  }
+}
+
+function releaseWriteLock(): void {
+  const { lockDirectoryPath } = getDatabasePaths();
+  if (existsSync(lockDirectoryPath)) {
+    rmSync(lockDirectoryPath, { recursive: true, force: true });
+  }
+}
+
+function ensureDataDirectory(): void {
+  const { dataDirectory } = getDatabasePaths();
+  if (!existsSync(dataDirectory)) {
+    mkdirSync(dataDirectory, { recursive: true });
+  }
+}
+
+function persistDatabaseAtomically(data: BookingDatabase): void {
+  const { atomicTempPath, databasePath } = getDatabasePaths();
+  const content = JSON.stringify(data, null, 2);
+  writeFileSync(atomicTempPath, content, "utf8");
+  renameSync(atomicTempPath, databasePath);
+}
+
+function writeCorruptedBackup(content: string): void {
+  const { dataDirectory } = getDatabasePaths();
+  const backupPath = path.join(dataDirectory, `booking-db.corrupted.${Date.now()}.json`);
+  writeFileSync(backupPath, content, "utf8");
+}
 
 function getSeedServices(): ServiceItem[] {
   return [
@@ -105,13 +202,12 @@ function normalizeDatabaseShape(raw: BookingDatabase): BookingDatabase {
 }
 
 export function readDatabase(): BookingDatabase {
-  if (!existsSync(dataDirectory)) {
-    mkdirSync(dataDirectory, { recursive: true });
-  }
+  const { databasePath } = getDatabasePaths();
+  ensureDataDirectory();
 
   if (!existsSync(databasePath)) {
     const seed = createSeedDatabase();
-    writeFileSync(databasePath, JSON.stringify(seed, null, 2), "utf8");
+    writeDatabase(seed);
     return seed;
   }
 
@@ -122,18 +218,27 @@ export function readDatabase(): BookingDatabase {
       throw new Error("Invalid database shape");
     }
     const normalized = normalizeDatabaseShape(parsed);
-    writeFileSync(databasePath, JSON.stringify(normalized, null, 2), "utf8");
+    writeDatabase(normalized);
     return normalized;
   } catch {
+    // Preserve unreadable data for investigation before resetting to seed.
+    writeCorruptedBackup(content);
     const seed = createSeedDatabase();
-    writeFileSync(databasePath, JSON.stringify(seed, null, 2), "utf8");
+    writeDatabase(seed);
     return seed;
   }
 }
 
 export function writeDatabase(data: BookingDatabase): void {
-  if (!existsSync(dataDirectory)) {
-    mkdirSync(dataDirectory, { recursive: true });
+  const { atomicTempPath } = getDatabasePaths();
+  ensureDataDirectory();
+  acquireWriteLockOrThrow();
+  try {
+    persistDatabaseAtomically(data);
+  } finally {
+    if (existsSync(atomicTempPath)) {
+      rmSync(atomicTempPath, { force: true });
+    }
+    releaseWriteLock();
   }
-  writeFileSync(databasePath, JSON.stringify(data, null, 2), "utf8");
 }

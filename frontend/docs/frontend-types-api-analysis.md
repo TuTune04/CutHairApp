@@ -262,6 +262,31 @@ Trong do:
 - [ ] Them API CRUD day du (`GET by id`, `PATCH`, `DELETE`)
 - [ ] Chuyen dan du lieu hard-code (`services`) sang API catalog
 
-## 9) Ket luan ngan
+## 9) He thong test de mo rong ben vung
+
+Muc tieu:
+- Tiep can theo lop de test de bao tri: parser loi -> notice mapping -> UI component.
+- Moi lop test doc lap, test nhanh, it phu thuoc rendering.
+
+Cau truc test hien tai:
+
+```txt
+frontend/
+  vitest.config.ts
+  src/lib/
+    api-errors.test.ts
+    notice.test.ts
+```
+
+Pham vi bao phu:
+- `api-errors.test.ts`: test parse envelope moi va fallback compatibility (`message/errorCode`).
+- `notice.test.ts`: test map `error.code` -> `AppNotice` va thong bao success.
+
+Huong mo rong tiep:
+- Them test cho `booking-api.ts` bang cach mock `fetch` theo tung endpoint.
+- Them test component cho `InlineNotice` neu can verify UI states (success/warning/error).
+- Neu dung toast toan cuc, them test adapter `AppNotice -> toast`.
+
+## 10) Ket luan ngan
 
 Frontend hien da co nen tang type kha tot cho phan giao dien va da ket noi duoc booking backend co ban. De mo rong an toan, can chuan hoa API contract (envelope + errorCode), tach type theo domain, va bo sung cac endpoint CRUD + catalog de giam phu thuoc du lieu hard-code.
