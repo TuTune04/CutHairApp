@@ -19,22 +19,25 @@ Tai lieu nay tong hop cac van de quan trong theo thu tu uu tien de fix, dong tho
      - Ghi file atomic qua `.tmp` + `rename`.
    - File lien quan: `backend/src/database.ts`.
 
-3. **[TODO] He thong canh bao/quan sat khi phat sinh fallback seed**
-   - Can them telemetry/log event ro rang de biet khi nao DB bi hu.
-   - De xuat: ghi log co level + luu metadata vao `data/incident-log.json`.
+3. **[DONE] He thong canh bao/quan sat khi phat sinh fallback seed**
+   - Da fix:
+     - Ghi su kien incident khi DB parse loi va fallback seed.
+     - Luu metadata vao `data/incident-log.json` (event, level, time, paths lien quan).
+   - File lien quan: `backend/src/database.ts`, `backend/src/incident-log.ts`.
 
 ## P1 - Bao mat va truy cap
 
-4. **[TODO] Chua co auth cho admin API**
-   - Anh huong: endpoint CRUD/revenue hien dang public.
-   - De xuat:
-     - Phase 1: API key cho admin routes.
-     - Phase 2: JWT + role (`admin`, `staff`).
-   - File lien quan: `backend/src/index.ts`.
+4. **[DONE] Chua co auth cho admin API**
+   - Da fix phase 1:
+     - API key middleware cho admin routes (`x-admin-api-key`).
+     - Co che bat/tat theo env `ADMIN_API_KEY` (khong set => khong enforce, de de migration).
+   - File lien quan: `backend/src/middlewares/admin-api-key.middleware.ts`, `backend/src/routes/*`.
 
-5. **[TODO] CORS dang mo toan bo**
-   - Anh huong: de bi goi API tu origin la.
-   - De xuat: gioi han `origin` theo env (`ALLOWED_ORIGINS`).
+5. **[DONE] CORS dang mo toan bo**
+   - Da fix:
+     - Gioi han CORS theo env `ALLOWED_ORIGINS`.
+     - Co default local origins de khong vo luong dev.
+   - File lien quan: `backend/src/index.ts`, `backend/src/config.ts`.
 
 ## P1 - Data validation va business rule
 

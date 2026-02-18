@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAdminApiKey } from "../middlewares/admin-api-key.middleware";
 import {
   createServiceController,
   deleteServiceController,
@@ -13,6 +14,6 @@ export const catalogRouter = Router();
 catalogRouter.get("/categories", listCategoriesController);
 catalogRouter.get("/services", listServicesController);
 catalogRouter.get("/services/:id", getServiceController);
-catalogRouter.post("/services", createServiceController);
-catalogRouter.patch("/services/:id", updateServiceController);
-catalogRouter.delete("/services/:id", deleteServiceController);
+catalogRouter.post("/services", requireAdminApiKey, createServiceController);
+catalogRouter.patch("/services/:id", requireAdminApiKey, updateServiceController);
+catalogRouter.delete("/services/:id", requireAdminApiKey, deleteServiceController);

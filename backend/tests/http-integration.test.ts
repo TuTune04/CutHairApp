@@ -6,7 +6,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const tempDirectories: string[] = [];
 
-async function createIsolatedApp(options?: { openHour?: number; closeHour?: number }) {
+async function createIsolatedApp(options?: {
+  openHour?: number;
+  closeHour?: number;
+  allowedOrigins?: string;
+  adminApiKey?: string;
+}) {
   const tempDirectory = mkdtempSync(path.join(os.tmpdir(), "cut-hair-backend-test-"));
   tempDirectories.push(tempDirectory);
 
@@ -18,6 +23,12 @@ async function createIsolatedApp(options?: { openHour?: number; closeHour?: numb
   if (options?.closeHour !== undefined) {
     process.env.SHOP_CLOSE_HOUR = String(options.closeHour);
   }
+  if (options?.allowedOrigins !== undefined) {
+    process.env.ALLOWED_ORIGINS = options.allowedOrigins;
+  }
+  if (options?.adminApiKey !== undefined) {
+    process.env.ADMIN_API_KEY = options.adminApiKey;
+  }
   vi.resetModules();
 
   const { app } = await import("../src/index");
@@ -28,6 +39,8 @@ afterEach(() => {
   delete process.env.BOOKING_DB_PATH;
   delete process.env.SHOP_OPEN_HOUR;
   delete process.env.SHOP_CLOSE_HOUR;
+  delete process.env.ALLOWED_ORIGINS;
+  delete process.env.ADMIN_API_KEY;
 });
 
 describe("http integration (real service + real test db)", () => {
@@ -133,7 +146,7 @@ describe("http integration (real service + real test db)", () => {
     const availabilityResponse = await request(app).get("/api/v1/availability?date=2026-02-22&durationMinutes=45");
     expect(availabilityResponse.status).toBe(200);
     expect(Array.isArray(availabilityResponse.body.data.freeSlots)).toBe(true);
-    expect(availabilityResponse.body.data.freeSlots.includes("09:00")).toBe(false);
+    expect(availabilityResponse.body.data.freeSlots.includes("09:00")).toBe(true);
 
     const dailyRevenue = await request(app).get("/api/v1/revenues/daily?from=2026-02-22&to=2026-02-22");
     expect(dailyRevenue.status).toBe(200);
@@ -155,6 +168,15 @@ describe("http integration (real service + real test db)", () => {
     expect(response.status).toBe(409);
     expect(response.body.success).toBe(false);
     expect(response.body.error.code).toBe("OUTSIDE_WORKING_HOURS");
+  });
+
+  it("applies CORS allow-list from env", async () => {
+    const app = await createIsolatedApp({ allowedOrigins: "http://allowed.local" });
+    const allowed = await request(app).get("/api/v1/health").set("Origin", "http://allowed.local");
+    expect(allowed.headers["access-control-allow-origin"]).toBe("http://allowed.local");
+
+    const denied = await request(app).get("/api/v1/health").set("Origin", "http://blocked.local");
+    expect(denied.headers["access-control-allow-origin"]).toBeUndefined();
   });
 });
 

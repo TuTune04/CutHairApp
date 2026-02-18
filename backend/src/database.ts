@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, statSync, r
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { Appointment, BookingDatabase, ServiceItem } from "./types/index";
+import { appendIncidentLog } from "./incident-log";
 
 const LOCK_WAIT_TIMEOUT_MS = 2_000;
 const LOCK_RETRY_INTERVAL_MS = 25;
@@ -97,10 +98,11 @@ function persistDatabaseAtomically(data: BookingDatabase): void {
   renameSync(atomicTempPath, databasePath);
 }
 
-function writeCorruptedBackup(content: string): void {
+function writeCorruptedBackup(content: string): string {
   const { dataDirectory } = getDatabasePaths();
   const backupPath = path.join(dataDirectory, `booking-db.corrupted.${Date.now()}.json`);
   writeFileSync(backupPath, content, "utf8");
+  return backupPath;
 }
 
 function getSeedServices(): ServiceItem[] {
@@ -222,7 +224,17 @@ export function readDatabase(): BookingDatabase {
     return normalized;
   } catch {
     // Preserve unreadable data for investigation before resetting to seed.
-    writeCorruptedBackup(content);
+    const backupPath = writeCorruptedBackup(content);
+    appendIncidentLog({
+      occurredAt: new Date().toISOString(),
+      level: "error",
+      event: "DB_PARSE_FALLBACK_SEED",
+      message: "Database parse failed. Created corrupted backup and reset to seed data.",
+      context: {
+        databasePath,
+        backupPath
+      }
+    });
     const seed = createSeedDatabase();
     writeDatabase(seed);
     return seed;

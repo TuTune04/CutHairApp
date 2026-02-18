@@ -90,11 +90,49 @@ describe("domain services unit", () => {
     expect(result.source).toBe("app");
   });
 
-  it("rejects overlapping app appointment", () => {
+  it("allows overlapping appointment when slot capacity is not full", () => {
+    const result = appointmentService.create({
+      customerName: "Overlap",
+      phoneNumber: "0909999999",
+      serviceName: "Goi Nam/Nu",
+      date: "2026-02-20",
+      startTime: "09:30",
+      durationMinutes: 30
+    });
+    expect(result.source).toBe("app");
+    expect(result.startTime).toBe("09:30");
+  });
+
+  it("rejects overlapping appointment when slot reaches max capacity", () => {
+    appointmentService.create({
+      customerName: "Overlap 1",
+      phoneNumber: "0909999998",
+      serviceName: "Goi Nam/Nu",
+      date: "2026-02-20",
+      startTime: "09:15",
+      durationMinutes: 30
+    });
+    appointmentService.create({
+      customerName: "Overlap 2",
+      phoneNumber: "0909999997",
+      serviceName: "Goi Nam/Nu",
+      date: "2026-02-20",
+      startTime: "09:20",
+      durationMinutes: 30
+    });
+    appointmentService.create({
+      customerName: "Overlap 3",
+      phoneNumber: "0909999996",
+      serviceName: "Goi Nam/Nu",
+      date: "2026-02-20",
+      startTime: "09:25",
+      durationMinutes: 30
+    });
+
     expect(() =>
       appointmentService.create({
-        customerName: "Overlap",
-        phoneNumber: "0909999999",
+        customerName: "Overlap 4",
+        phoneNumber: "0909999995",
         serviceName: "Goi Nam/Nu",
         date: "2026-02-20",
         startTime: "09:30",

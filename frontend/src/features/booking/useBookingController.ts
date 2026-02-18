@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { createAppointment, getServices, type CreateAppointmentPayload, type ServiceItem } from "@/src/lib/booking-api"
 import { buildApiErrorNotice, buildSuccessNotice, type AppNotice } from "@/src/lib/notice"
 
@@ -8,6 +8,7 @@ export function useBookingController(baseUrl: string, isOpen: boolean) {
   const [services, setServices] = useState<ServiceItem[]>([])
   const [notice, setNotice] = useState<AppNotice | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     if (!isOpen) return
@@ -32,6 +33,10 @@ export function useBookingController(baseUrl: string, isOpen: boolean) {
   }, [baseUrl, isOpen])
 
   async function submitBooking(payload: CreateAppointmentPayload): Promise<boolean> {
+    if (submittingRef.current) {
+      return false
+    }
+    submittingRef.current = true
     setNotice(null)
     setIsSubmitting(true)
     try {
@@ -48,6 +53,7 @@ export function useBookingController(baseUrl: string, isOpen: boolean) {
       return false
     } finally {
       setIsSubmitting(false)
+      submittingRef.current = false
     }
   }
 

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { requireAdminApiKey } from "../middlewares/admin-api-key.middleware";
 import {
   createAppointmentController,
   deleteAppointmentController,
@@ -9,8 +10,8 @@ import {
 
 export const appointmentsRouter = Router();
 
-appointmentsRouter.get("/", listAppointmentsController);
-appointmentsRouter.get("/:id", getAppointmentController);
 appointmentsRouter.post("/", createAppointmentController);
-appointmentsRouter.patch("/:id", updateAppointmentController);
-appointmentsRouter.delete("/:id", deleteAppointmentController);
+appointmentsRouter.get("/", requireAdminApiKey, listAppointmentsController);
+appointmentsRouter.get("/:id", requireAdminApiKey, getAppointmentController);
+appointmentsRouter.patch("/:id", requireAdminApiKey, updateAppointmentController);
+appointmentsRouter.delete("/:id", requireAdminApiKey, deleteAppointmentController);

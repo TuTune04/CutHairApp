@@ -69,6 +69,9 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) {
+      return
+    }
     setBookingNotice(null)
 
     if (!formData.name.trim() || !formData.phone.trim() || !formData.date || !formData.time || !formData.serviceName) {

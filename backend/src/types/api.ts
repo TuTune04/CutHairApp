@@ -1,6 +1,7 @@
 export type ApiErrorCode =
   | "VALIDATION_ERROR"
   | "NOT_FOUND"
+  | "UNAUTHORIZED"
   | "CONFLICT"
   | "SERVICE_NOT_AVAILABLE"
   | "OUTSIDE_WORKING_HOURS"

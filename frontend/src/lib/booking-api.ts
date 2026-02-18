@@ -1,7 +1,9 @@
 import { fetchAppointments, fetchAvailability, postAppointment, postExternalRevenue } from "./api/appointments"
 import { fetchCustomers, fetchDailyRevenue, fetchMonthlyRevenue } from "./api/analytics"
 import { fetchServices } from "./api/catalog"
+import { postAdminLogin } from "./api/auth"
 import { createApiClient } from "./api/client"
+import type { ApiClientOptions } from "./api/client"
 
 export interface Appointment {
   id: string
@@ -67,6 +69,17 @@ export interface ServiceItem {
   defaultDurationMinutes: number
 }
 
+export interface AdminLoginPayload {
+  username: string
+  password: string
+}
+
+export interface AdminLoginResult {
+  accessToken: string
+  tokenType: "Bearer"
+  expiresInSeconds: number
+}
+
 export interface DailyRevenueItem {
   date: string
   totalRevenue: number
@@ -81,53 +94,65 @@ export interface MonthlyRevenueItem {
   totalAppointments: number
 }
 
-export async function getAppointments(baseUrl: string): Promise<Appointment[]> {
-  const client = createApiClient(baseUrl)
+export async function getAppointments(baseUrl: string, options?: ApiClientOptions): Promise<Appointment[]> {
+  const client = createApiClient(baseUrl, options)
   return fetchAppointments(client)
 }
 
-export async function getCustomers(baseUrl: string): Promise<CustomerSummary[]> {
+export async function loginAdmin(baseUrl: string, payload: AdminLoginPayload): Promise<AdminLoginResult> {
   const client = createApiClient(baseUrl)
+  return postAdminLogin(client, payload)
+}
+
+export async function getCustomers(baseUrl: string, options?: ApiClientOptions): Promise<CustomerSummary[]> {
+  const client = createApiClient(baseUrl, options)
   return fetchCustomers(client)
 }
 
-export async function getServices(baseUrl: string): Promise<ServiceItem[]> {
-  const client = createApiClient(baseUrl)
+export async function getServices(baseUrl: string, options?: ApiClientOptions): Promise<ServiceItem[]> {
+  const client = createApiClient(baseUrl, options)
   return fetchServices(client)
 }
 
 export async function getAvailability(
   baseUrl: string,
   date: string,
-  durationMinutes: number
+  durationMinutes: number,
+  options?: ApiClientOptions
 ): Promise<string[]> {
-  const client = createApiClient(baseUrl)
+  const client = createApiClient(baseUrl, options)
   return fetchAvailability(client, date, durationMinutes)
 }
 
-export async function createAppointment(baseUrl: string, payload: CreateAppointmentPayload): Promise<Appointment> {
-  const client = createApiClient(baseUrl)
+export async function createAppointment(
+  baseUrl: string,
+  payload: CreateAppointmentPayload,
+  options?: ApiClientOptions
+): Promise<Appointment> {
+  const client = createApiClient(baseUrl, options)
   return postAppointment(client, payload)
 }
 
 export async function createExternalRevenue(
   baseUrl: string,
-  payload: CreateExternalRevenuePayload
+  payload: CreateExternalRevenuePayload,
+  options?: ApiClientOptions
 ): Promise<Appointment> {
-  const client = createApiClient(baseUrl)
+  const client = createApiClient(baseUrl, options)
   return postExternalRevenue(client, payload)
 }
 
 export async function getDailyRevenue(
   baseUrl: string,
   fromDate?: string,
-  toDate?: string
+  toDate?: string,
+  options?: ApiClientOptions
 ): Promise<DailyRevenueItem[]> {
-  const client = createApiClient(baseUrl)
+  const client = createApiClient(baseUrl, options)
   return fetchDailyRevenue(client, fromDate, toDate)
 }
 
-export async function getMonthlyRevenue(baseUrl: string, year?: string): Promise<MonthlyRevenueItem[]> {
-  const client = createApiClient(baseUrl)
+export async function getMonthlyRevenue(baseUrl: string, year?: string, options?: ApiClientOptions): Promise<MonthlyRevenueItem[]> {
+  const client = createApiClient(baseUrl, options)
   return fetchMonthlyRevenue(client, year)
 }

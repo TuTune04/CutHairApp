@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { SHOP_CLOSE_HOUR, SHOP_OPEN_HOUR } from "../config";
+import { MAX_CONCURRENT_APPOINTMENTS, SHOP_CLOSE_HOUR, SHOP_OPEN_HOUR } from "../config";
 import { AppError } from "../errors";
 import type { Appointment, CreateAppointmentInput, CreateExternalRevenueInput, TimeSlot, UpdateAppointmentInput } from "../types";
 import type { AppointmentRepository } from "../repositories/database.repository";
@@ -160,11 +160,8 @@ export class AppointmentService {
 
     for (let start = openMinutes; start <= lastStart; start += 30) {
       const end = start + durationMinutes;
-      const isBusy = dayAppointments.some((item) => {
-        const busyStart = parseMinutes(item.startTime);
-        const busyEnd = parseMinutes(item.endTime);
-        return overlaps(start, end, busyStart, busyEnd);
-      });
+      const overlapCount = this.countOverlappingAppointments(dayAppointments, start, end);
+      const isBusy = overlapCount >= MAX_CONCURRENT_APPOINTMENTS;
       if (!isBusy) freeSlots.push(formatMinutes(start));
     }
 
@@ -186,15 +183,18 @@ export class AppointmentService {
     endMinutes: number,
     ignoreId?: string
   ): void {
-    const hasConflict = rows
-      .filter((item) => item.date === date && item.source === "app" && item.id !== ignoreId)
-      .some((item) => {
-        const busyStart = parseMinutes(item.startTime);
-        const busyEnd = parseMinutes(item.endTime);
-        return overlaps(startMinutes, endMinutes, busyStart, busyEnd);
-      });
-    if (hasConflict) {
-      throw new AppError("TIME_SLOT_UNAVAILABLE", "Selected time is no longer available", 409);
+    const sameDayRows = rows.filter((item) => item.date === date && item.source === "app" && item.id !== ignoreId);
+    const overlapCount = this.countOverlappingAppointments(sameDayRows, startMinutes, endMinutes);
+    if (overlapCount >= MAX_CONCURRENT_APPOINTMENTS) {
+      throw new AppError("TIME_SLOT_UNAVAILABLE", "Selected time slot is fully booked", 409);
     }
+  }
+
+  private countOverlappingAppointments(rows: Appointment[], startMinutes: number, endMinutes: number): number {
+    return rows.reduce((count, item) => {
+      const busyStart = parseMinutes(item.startTime);
+      const busyEnd = parseMinutes(item.endTime);
+      return overlaps(startMinutes, endMinutes, busyStart, busyEnd) ? count + 1 : count;
+    }, 0);
   }
 }

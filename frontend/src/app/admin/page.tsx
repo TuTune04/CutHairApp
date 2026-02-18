@@ -64,6 +64,13 @@ export default function AdminBookingPage() {
   const {
     apiUrl,
     setApiUrl,
+    adminApiKey,
+    setAdminApiKey,
+    adminUsername,
+    setAdminUsername,
+    adminPassword,
+    setAdminPassword,
+    isAdminLoggedIn,
     isLoading,
     message,
     error,
@@ -88,7 +95,9 @@ export default function AdminBookingPage() {
     loadDashboard,
     refreshRevenue,
     submitAppointment,
-    submitExternalRevenue
+    submitExternalRevenue,
+    loginAsAdmin,
+    logoutAdmin
   } = useAdminDashboardController(defaultApiUrl, today, currentYear)
 
   const totalAppointments = appointments.length
@@ -97,100 +106,130 @@ export default function AdminBookingPage() {
   const monthlyRevenueTotal = monthlyRevenue.reduce((sum, item) => sum + item.totalRevenue, 0)
 
   useEffect(() => {
+    if (!isAdminLoggedIn) {
+      return
+    }
     void loadDashboard(false)
-    // Intentionally load once on first render.
+    // Intentionally sync right after login state changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isAdminLoggedIn])
 
   return (
     <main className="min-h-screen bg-neutral-50 px-3 py-6 text-neutral-900 md:px-6">
       <div className="mx-auto flex w-full max-w-[1700px] flex-col gap-4">
         <AdminHeader
           apiUrl={apiUrl}
+          adminApiKey={adminApiKey}
+          adminUsername={adminUsername}
+          adminPassword={adminPassword}
+          isAdminLoggedIn={isAdminLoggedIn}
           isLoading={isLoading}
           message={message}
           error={error}
           onApiUrlChange={setApiUrl}
+          onAdminApiKeyChange={setAdminApiKey}
+          onAdminUsernameChange={setAdminUsername}
+          onAdminPasswordChange={setAdminPassword}
+          onAdminLogin={() => void loginAsAdmin({ username: adminUsername.trim(), password: adminPassword })}
+          onAdminLogout={logoutAdmin}
           onRefresh={() => void loadDashboard(true)}
         />
 
-        <AdminStatsCards
-          totalAppointments={totalAppointments}
-          totalCustomers={totalCustomers}
-          dailyRevenueTotalText={formatCurrency(dailyRevenueTotal)}
-          monthlyRevenueTotalText={formatCurrency(monthlyRevenueTotal)}
-        />
+        {!isAdminLoggedIn ? (
+          <section className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+            <h2 className="text-lg font-semibold text-neutral-900">Yeu cau dang nhap admin</h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Vui long dang nhap truoc khi truy cap du lieu quan tri.
+            </p>
+            <div className="mt-3 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
+              Tai khoan mau: <strong>admin</strong> / <strong>admin123456</strong>
+            </div>
+          </section>
+        ) : (
+          <>
+            <AdminStatsCards
+              totalAppointments={totalAppointments}
+              totalCustomers={totalCustomers}
+              dailyRevenueTotalText={formatCurrency(dailyRevenueTotal)}
+              monthlyRevenueTotalText={formatCurrency(monthlyRevenueTotal)}
+            />
 
-        <section className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsAppointmentModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Them lich hen
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsExternalRevenueModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Ghi nhan don ngoai
-            </button>
-          </div>
-        </section>
+            <section className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAppointmentModalOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Them lich hen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsExternalRevenueModalOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Ghi nhan don ngoai
+                </button>
+              </div>
+            </section>
 
-        <SchedulePanel
-          timeSlots={TIME_SLOTS}
-          services={services}
-          searchText={searchText}
-          selectedDateFilter={selectedDateFilter}
-          selectedServiceFilter={selectedServiceFilter}
-          filteredAppointments={filteredAppointments}
-          onSearchTextChange={setSearchText}
-          onDateFilterChange={setSelectedDateFilter}
-          onServiceFilterChange={setSelectedServiceFilter}
-        />
+            <SchedulePanel
+              timeSlots={TIME_SLOTS}
+              services={services}
+              searchText={searchText}
+              selectedDateFilter={selectedDateFilter}
+              selectedServiceFilter={selectedServiceFilter}
+              filteredAppointments={filteredAppointments}
+              onSearchTextChange={setSearchText}
+              onDateFilterChange={setSelectedDateFilter}
+              onServiceFilterChange={setSelectedServiceFilter}
+            />
 
-        <AppointmentsTable appointments={filteredAppointments} formatCurrency={formatCurrency} />
+            <AppointmentsTable appointments={filteredAppointments} formatCurrency={formatCurrency} />
 
-        <RevenuePanels
-          dailyRevenue={dailyRevenue}
-          monthlyRevenue={monthlyRevenue}
-          revenueFromDate={revenueFromDate}
-          revenueToDate={revenueToDate}
-          revenueYear={revenueYear}
-          isLoading={isLoading}
-          onFromDateChange={setRevenueFromDate}
-          onToDateChange={setRevenueToDate}
-          onYearChange={setRevenueYear}
-          onRefresh={refreshRevenue}
-          formatCurrency={formatCurrency}
-        />
+            <RevenuePanels
+              dailyRevenue={dailyRevenue}
+              monthlyRevenue={monthlyRevenue}
+              revenueFromDate={revenueFromDate}
+              revenueToDate={revenueToDate}
+              revenueYear={revenueYear}
+              isLoading={isLoading}
+              onFromDateChange={setRevenueFromDate}
+              onToDateChange={setRevenueToDate}
+              onYearChange={setRevenueYear}
+              onRefresh={refreshRevenue}
+              formatCurrency={formatCurrency}
+            />
 
-        <CustomersPanel customers={customers} formatVnDateTime={formatVnDateTime} />
+            <CustomersPanel customers={customers} formatVnDateTime={formatVnDateTime} />
+          </>
+        )}
       </div>
 
-      <AppointmentModal
-        open={isAppointmentModalOpen}
-        services={services}
-        isLoading={isLoading}
-        defaultDate={today}
-        timeSlots={TIME_SLOTS}
-        durationOptions={DURATION_OPTIONS}
-        onClose={() => setIsAppointmentModalOpen(false)}
-        onSubmit={submitAppointment}
-      />
-      <ExternalRevenueModal
-        open={isExternalRevenueModalOpen}
-        services={services}
-        defaultDate={today}
-        isLoading={isLoading}
-        onClose={() => setIsExternalRevenueModalOpen(false)}
-        onSubmit={submitExternalRevenue}
-      />
+      {isAdminLoggedIn ? (
+        <>
+          <AppointmentModal
+            open={isAppointmentModalOpen}
+            services={services}
+            isLoading={isLoading}
+            defaultDate={today}
+            timeSlots={TIME_SLOTS}
+            durationOptions={DURATION_OPTIONS}
+            onClose={() => setIsAppointmentModalOpen(false)}
+            onSubmit={submitAppointment}
+          />
+          <ExternalRevenueModal
+            open={isExternalRevenueModalOpen}
+            services={services}
+            defaultDate={today}
+            isLoading={isLoading}
+            onClose={() => setIsExternalRevenueModalOpen(false)}
+            onSubmit={submitExternalRevenue}
+          />
+        </>
+      ) : null}
     </main>
   )
 }

@@ -275,6 +275,73 @@
         "Tay Nu (1 lan tay)"
       ],
       "createdAt": "2026-02-18T08:55:42.679Z"
+    },
+    {
+      "id": "4a3d9daa-526d-4bd6-855a-32c26cfc297e",
+      "customerName": "hai2",
+      "phoneNumber": "0987667712",
+      "serviceName": "Uon",
+      "date": "2026-02-20",
+      "startTime": "10:04",
+      "endTime": "12:04",
+      "source": "app",
+      "revenueAmount": 600000,
+      "serviceNames": [
+        "Uon"
+      ],
+      "createdAt": "2026-02-18T09:05:00.460Z"
+    },
+    {
+      "id": "d8520ee2-64d0-45d6-b89f-c185b3142db3",
+      "customerName": "hai2",
+      "phoneNumber": "0987667712",
+      "serviceName": "Uon",
+      "date": "2026-02-19",
+      "startTime": "10:13",
+      "endTime": "12:13",
+      "source": "app",
+      "revenueAmount": 600000,
+      "serviceNames": [
+        "Uon"
+      ],
+      "createdAt": "2026-02-18T09:13:53.953Z"
+    },
+    {
+      "id": "caf1343a-6570-4ee1-ba25-b17efccb6412",
+      "customerName": "hai",
+      "phoneNumber": "0987667712",
+      "serviceName": "Cat, xa toc Nu + Cat, xa toc Nam + Ep chan + Duoi / Ep + Goi Nam/Nu + Tao kieu Nu + Tay Nu (1 lan tay) + Tay Nam (1 lan tay)",
+      "date": "2026-02-18",
+      "startTime": "00:00",
+      "endTime": "00:00",
+      "source": "external",
+      "revenueAmount": 1470000,
+      "serviceNames": [
+        "Cat, xa toc Nu",
+        "Cat, xa toc Nam",
+        "Ep chan",
+        "Duoi / Ep",
+        "Goi Nam/Nu",
+        "Tao kieu Nu",
+        "Tay Nu (1 lan tay)",
+        "Tay Nam (1 lan tay)"
+      ],
+      "createdAt": "2026-02-18T09:19:23.802Z"
+    },
+    {
+      "id": "8936b4bd-f5f7-495d-8656-69f0253782ef",
+      "customerName": "tu",
+      "phoneNumber": "0123456789",
+      "serviceName": "Tay Nu (1 lan tay)",
+      "date": "2026-02-19",
+      "startTime": "09:00",
+      "endTime": "11:30",
+      "source": "app",
+      "revenueAmount": 300000,
+      "serviceNames": [
+        "Tay Nu (1 lan tay)"
+      ],
+      "createdAt": "2026-02-18T09:20:04.584Z"
     }
   ]
 }
