@@ -148,6 +148,9 @@
       "endTime": "10:00",
       "source": "app",
       "revenueAmount": 40000,
+      "serviceNames": [
+        "Cat, xa toc Nam"
+      ],
       "notes": "Khach quen",
       "createdAt": "2026-02-16T00:00:00.000Z"
     },
@@ -161,6 +164,9 @@
       "endTime": "14:30",
       "source": "app",
       "revenueAmount": 600000,
+      "serviceNames": [
+        "Phuc hoi Keratin"
+      ],
       "createdAt": "2026-02-16T00:10:00.000Z"
     },
     {
@@ -173,6 +179,9 @@
       "endTime": "11:34",
       "source": "app",
       "revenueAmount": 100000,
+      "serviceNames": [
+        "Cat, xa toc Nu"
+      ],
       "createdAt": "2026-02-16T11:34:43.011Z"
     },
     {
@@ -185,6 +194,9 @@
       "endTime": "13:22",
       "source": "app",
       "revenueAmount": 40000,
+      "serviceNames": [
+        "Cat, xa toc Nam"
+      ],
       "notes": "cắt đẹp",
       "createdAt": "2026-02-16T13:36:26.296Z"
     },
@@ -198,8 +210,56 @@
       "endTime": "09:45",
       "source": "app",
       "revenueAmount": 40000,
+      "serviceNames": [
+        "Cat, xa toc Nam"
+      ],
       "notes": "d",
       "createdAt": "2026-02-18T05:11:13.526Z"
+    },
+    {
+      "id": "aa48d5a8-64c7-49ef-91e5-bed475d5537c",
+      "customerName": "tu",
+      "phoneNumber": "0987667712",
+      "serviceName": "Cat, xa toc Nam",
+      "date": "2026-02-19",
+      "startTime": "10:11",
+      "endTime": "10:56",
+      "source": "app",
+      "revenueAmount": 40000,
+      "serviceNames": [
+        "Cat, xa toc Nam"
+      ],
+      "createdAt": "2026-02-18T06:11:29.030Z"
+    },
+    {
+      "id": "d28b623c-aa63-4a9d-8b23-fc3c06580730",
+      "customerName": "tu",
+      "phoneNumber": "0987667712",
+      "serviceName": "Cat, xa toc Nam",
+      "date": "2026-02-19",
+      "startTime": "16:15",
+      "endTime": "17:00",
+      "source": "app",
+      "revenueAmount": 40000,
+      "serviceNames": [
+        "Cat, xa toc Nam"
+      ],
+      "createdAt": "2026-02-18T06:16:02.022Z"
+    },
+    {
+      "id": "963047d3-ca80-4363-bbac-aebf9af4bd1f",
+      "customerName": "tu",
+      "phoneNumber": "0987667712",
+      "serviceName": "Cat, xa toc Nam",
+      "date": "2026-02-20",
+      "startTime": "16:40",
+      "endTime": "17:25",
+      "source": "app",
+      "revenueAmount": 40000,
+      "serviceNames": [
+        "Cat, xa toc Nam"
+      ],
+      "createdAt": "2026-02-18T06:40:04.790Z"
     }
   ]
 }

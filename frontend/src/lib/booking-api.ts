@@ -1,3 +1,5 @@
+import { parseApiError } from "./api-errors"
+
 export interface Appointment {
   id: string
   customerName: string
@@ -78,27 +80,7 @@ export interface MonthlyRevenueItem {
 
 async function readJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    let message = "Request failed"
-    try {
-      const payload = (await response.json()) as {
-        message?: string
-        errors?: {
-          fieldErrors?: Record<string, string[]>
-        }
-      }
-      if (payload.message) {
-        message = payload.message
-      }
-      const firstFieldError = Object.values(payload.errors?.fieldErrors ?? {})
-        .flat()
-        .find(Boolean)
-      if (firstFieldError) {
-        message = `${message}: ${firstFieldError}`
-      }
-    } catch {
-      message = `${response.status} ${response.statusText}`
-    }
-    throw new Error(message)
+    throw await parseApiError(response)
   }
 
   return response.json() as Promise<T>

@@ -9,6 +9,9 @@ import Image from "next/image"
 import { hairstylesByGender } from "@/src/data/hairstyles"
 import type { HairGender, HairStyleOption } from "@/src/types/catalog"
 import { createAppointment, getServices, ServiceItem } from "@/src/lib/booking-api"
+import type { AppNotice } from "@/src/lib/notice"
+import { buildApiErrorNotice, buildSuccessNotice } from "@/src/lib/notice"
+import { InlineNotice } from "@/src/components/common/inline-notice"
 
 interface BookingModalProps {
   isOpen: boolean
@@ -21,9 +24,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null)
   const [previewImage, setPreviewImage] = useState<string>("")
   const [services, setServices] = useState<ServiceItem[]>([])
-  const [serviceLoadError, setServiceLoadError] = useState("")
-  const [submitError, setSubmitError] = useState("")
-  const [submitSuccess, setSubmitSuccess] = useState("")
+  const [bookingNotice, setBookingNotice] = useState<AppNotice | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
@@ -50,7 +51,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     }
 
     let active = true
-    setServiceLoadError("")
+    setBookingNotice(null)
 
     getServices(apiBaseUrl)
       .then((items) => {
@@ -67,8 +68,11 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         if (!active) {
           return
         }
-        const message = error instanceof Error ? error.message : "Khong tai duoc danh sach dich vu"
-        setServiceLoadError(message)
+        setBookingNotice(
+          buildApiErrorNotice(error, {
+            fallbackTitle: "Khong tai duoc danh sach dich vu"
+          })
+        )
       })
 
     return () => {
@@ -93,11 +97,14 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitError("")
-    setSubmitSuccess("")
+    setBookingNotice(null)
 
     if (!formData.name.trim() || !formData.phone.trim() || !formData.date || !formData.time || !formData.serviceName) {
-      setSubmitError("Vui long nhap day du ten, so dien thoai, dich vu va thoi gian dat lich")
+      setBookingNotice({
+        variant: "warning",
+        title: "Thieu thong tin bat buoc",
+        message: "Vui long nhap day du ten, so dien thoai, dich vu va thoi gian dat lich."
+      })
       return
     }
 
@@ -113,7 +120,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         notes: formData.notes.trim() || undefined,
       })
 
-      setSubmitSuccess("Dat lich thanh cong. Chung toi da luu lich su va dich vu ban da su dung.")
+      setBookingNotice(buildSuccessNotice("Dat lich thanh cong", `Hen gap ban luc ${formData.time}, ngay ${formData.date}.`))
       setFormData((previous) => ({
         ...previous,
         name: "",
@@ -124,8 +131,12 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         notes: "",
       }))
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Khong the dat lich luc nay"
-      setSubmitError(message)
+      setBookingNotice(
+        buildApiErrorNotice(error, {
+          validationTitle: "Thong tin dat lich chua dung",
+          fallbackTitle: "Dat lich that bai"
+        })
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -416,9 +427,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                           </div>
                         </div>
 
-                        {serviceLoadError ? <p className="text-xs text-red-600">{serviceLoadError}</p> : null}
-                        {submitError ? <p className="text-xs text-red-600">{submitError}</p> : null}
-                        {submitSuccess ? <p className="text-xs text-emerald-700">{submitSuccess}</p> : null}
+                        {bookingNotice ? <InlineNotice notice={bookingNotice} /> : null}
 
 
                         {/* Notes */}
